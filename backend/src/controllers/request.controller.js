@@ -51,3 +51,37 @@ export const createRequest = async(req,res)=>{
     }
 
 };
+
+export const getAvailableRequests = async(req,res)=>{
+
+    try{
+
+        const requests = await StaffingRequest
+            .find({
+                status:"OPEN"
+            })
+            .populate(
+                "hospitalId",
+                "hospitalName city address"
+            );
+
+
+        res.status(200).json({
+
+            success:true,
+
+            data:requests
+
+        });
+
+
+    }catch(error){
+
+        res.status(500).json({
+            success:false,
+            message:error.message
+        });
+
+    }
+
+};
