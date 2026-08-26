@@ -3,6 +3,7 @@ import Professional from "../models/professional.model.js";
 import StaffingRequest from "../models/staffingRequest.model.js";
 import { checkEligibility } from "../services/eligibilityForApplying.service.js";
 import Hospital from "../models/hospital.model.js";
+import { acceptApplicationService } from "../services/application.service.js";
 
 export const applyToRequest = async(req,res)=>{
 
@@ -10,14 +11,12 @@ export const applyToRequest = async(req,res)=>{
 
         const {requestId}=req.params;
 
-
         // find professional profile
 
         const professional =
             await Professional.findOne({
                 userId:req.user.id
             });
-
 
         if(!professional){
 
@@ -28,13 +27,10 @@ export const applyToRequest = async(req,res)=>{
 
         }
 
-
-
         // check request exists
 
         const request =
             await StaffingRequest.findById(requestId);
-
 
         if(!request){
 
@@ -51,7 +47,6 @@ export const applyToRequest = async(req,res)=>{
                 professional,
                 request
             );
-
 
         if(!eligibility.eligible){
 
@@ -75,7 +70,6 @@ export const applyToRequest = async(req,res)=>{
             });
 
 
-
         res.status(201).json({
 
             success:true,
@@ -89,7 +83,6 @@ export const applyToRequest = async(req,res)=>{
 
     }catch(error){
 
-
         if(error.code===11000){
 
             return res.status(409).json({
@@ -98,7 +91,6 @@ export const applyToRequest = async(req,res)=>{
             });
 
         }
-
 
         res.status(500).json({
             success:false,
@@ -136,8 +128,6 @@ export const getApplicationsForHospital_Request = async(req,res)=>{
 
         const request =
             await StaffingRequest.findById(requestId);
-
-
 
         if(!request){
 
@@ -197,4 +187,39 @@ export const getApplicationsForHospital_Request = async(req,res)=>{
 
     }
 
+};
+
+export const acceptApplication = async(req,res)=>{
+
+    try{
+
+        const {applicationId}=req.params;
+
+        const result =
+            await acceptApplicationService(
+                applicationId,
+                req.user.id
+            );
+
+        res.status(200).json({
+
+            success:true,
+
+            data:result,
+
+            message:
+            "Application accepted"
+
+        });
+
+    }catch(error){
+
+        res.status(400).json({
+
+            success:false,
+
+            message:error.message
+
+        });
+    }
 };

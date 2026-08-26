@@ -1,6 +1,6 @@
 import express from "express";
 
-import { applyToRequest,getApplicationsForHospital_Request} from "../controllers/application.controller.js";
+import { applyToRequest,getApplicationsForHospital_Request,acceptApplication} from "../controllers/application.controller.js";
 
 
 import { verifyToken} from "../middlewares/auth.middleware.js";
@@ -37,6 +37,12 @@ router.get(
     verifyToken,
     allowRoles("hospital"),
     getApplicationsForHospital_Request
+);
+router.patch(
+    "/:applicationId/accept",
+    verifyToken,
+    allowRoles("hospital"),
+    acceptApplication
 );
 
 
