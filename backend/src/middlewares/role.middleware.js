@@ -5,7 +5,6 @@ export const allowRoles = (...allowedRoles) => {
         console.log("Allowed roles:", allowedRoles);
         console.log("Current user:", req.user);
 
-
         if(!allowedRoles.includes(req.user.role)){
 
             return res.status(403).json({
@@ -14,8 +13,6 @@ export const allowRoles = (...allowedRoles) => {
             });
 
         }
-
-
         next();
 
     };

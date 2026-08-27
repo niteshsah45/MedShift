@@ -42,11 +42,10 @@ const professionalSchema = new mongoose.Schema(
             String
         ],
 
-
         city:{
-            type:String
+            type:String,
+            required:true,
         },
-
 
         verificationStatus:{
             type:String,

@@ -3,13 +3,12 @@ import StaffingRequest from "../models/staffingRequest.model.js";
 import Assignment from "../models/assignment.model.js";
 import Hospital from "../models/hospital.model.js";
 import mongoose from "mongoose";
-import { startSession } from "mongoose";
 
 export const acceptApplicationService = async(applicationId,hospitalId)=>{
 
     // find application
 
-    const session = mongoose.startSession();
+    const session = await mongoose.startSession();
 
 
     try{
@@ -48,7 +47,7 @@ export const acceptApplicationService = async(applicationId,hospitalId)=>{
         const request =
             await StaffingRequest.findById(
                 application.requestId
-            );
+            ).session(session);
 
         if(!request){
 
@@ -97,7 +96,19 @@ export const acceptApplicationService = async(applicationId,hospitalId)=>{
                     application.professionalId,
 
                 applicationId:
-                    application._id
+                    application._id,
+
+                shiftDate:
+                    request.shiftDate,
+
+                startTime:
+                    request.startTime,
+
+                endTime:
+                    request.endTime,
+
+                location:
+                    request.location
 
             }
             ],
@@ -123,4 +134,81 @@ export const acceptApplicationService = async(applicationId,hospitalId)=>{
     finally{
         await session.endSession();
     }
+};
+
+export const rejectApplicationService = async(
+    applicationId,
+    hospitalUserId
+)=>{
+
+    // find hospital
+
+        const hospital =
+            await Hospital.findOne({
+                userId:hospitalUserId
+            });
+
+
+        if(!hospital){
+            throw new Error(
+                "Hospital profile not found"
+            );
+        }
+
+        // find application
+        const application =
+            await Application.findById(applicationId);
+
+        if(!application){
+
+            throw new Error(
+                "Application not found"
+            );
+        }
+
+        // check current state
+
+        if(application.status !== "PENDING"){
+
+            throw new Error(
+                "Application already processed"
+            );
+        }
+
+        // find related request
+
+        const request =
+            await StaffingRequest.findById(
+                application.requestId
+            );
+
+
+        if(!request){
+
+            throw new Error(
+                "Staffing request not found"
+            );
+        }
+
+        // ownership check
+
+        if(
+            request.hospitalId.toString()
+            !==
+            hospital._id.toString()
+        ){
+
+            throw new Error(
+                "You cannot reject this application"
+            );
+        }
+
+        // update status
+        application.status="REJECTED";
+
+
+        await application.save();
+
+
+        return application;
 };

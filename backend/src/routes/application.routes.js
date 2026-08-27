@@ -1,13 +1,16 @@
 import express from "express";
 
-import { applyToRequest,getApplicationsForHospital_Request,acceptApplication} from "../controllers/application.controller.js";
+import { applyToRequest,
+    getApplicationsForHospital_Request,
+    acceptApplication,
+    rejectApplication
+} from "../controllers/application.controller.js";
 
 
 import { verifyToken} from "../middlewares/auth.middleware.js";
 
 
 import {allowRoles} from "../middlewares/role.middleware.js";
-
 
 const router = express.Router();
 
@@ -44,6 +47,11 @@ router.patch(
     allowRoles("hospital"),
     acceptApplication
 );
-
+router.patch(
+    "/:applicationId/reject",
+    verifyToken,
+    allowRoles("hospital"),
+    rejectApplication
+)
 
 export default router;

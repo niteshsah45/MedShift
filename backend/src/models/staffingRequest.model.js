@@ -65,7 +65,11 @@ const staffingRequestSchema = new mongoose.Schema(
         required:true
     },
 
-
+    location:{
+        type:String,
+        required:true
+    },
+    
     positionsFilled:{
         type:Number,
         default:0

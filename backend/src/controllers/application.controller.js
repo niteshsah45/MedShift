@@ -3,7 +3,8 @@ import Professional from "../models/professional.model.js";
 import StaffingRequest from "../models/staffingRequest.model.js";
 import { checkEligibility } from "../services/eligibilityForApplying.service.js";
 import Hospital from "../models/hospital.model.js";
-import { acceptApplicationService } from "../services/application.service.js";
+import { acceptApplicationService,rejectApplicationService } from "../services/application.service.js";
+
 
 export const applyToRequest = async(req,res)=>{
 
@@ -40,7 +41,6 @@ export const applyToRequest = async(req,res)=>{
             });
 
         }
-
         // only with year of experience greater than or equal to the required experience can apply and with same specialization
         const eligibility =
             checkEligibility(
@@ -69,7 +69,6 @@ export const applyToRequest = async(req,res)=>{
 
             });
 
-
         res.status(201).json({
 
             success:true,
@@ -79,7 +78,6 @@ export const applyToRequest = async(req,res)=>{
             message:"Application submitted"
 
         });
-
 
     }catch(error){
 
@@ -222,4 +220,44 @@ export const acceptApplication = async(req,res)=>{
 
         });
     }
+};
+
+export const rejectApplication = async(req,res)=>{
+
+    try{
+
+        const {applicationId}=req.params;
+
+
+        const application =
+            await rejectApplicationService(
+                applicationId,
+                req.user.id
+            );
+
+
+        res.status(200).json({
+
+            success:true,
+
+            data:application,
+
+            message:
+            "Application rejected"
+
+        });
+
+
+    }catch(error){
+
+        res.status(400).json({
+
+            success:false,
+
+            message:error.message
+
+        });
+
+    }
+
 };

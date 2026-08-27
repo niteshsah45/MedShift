@@ -20,7 +20,6 @@ export const register = async(req,res)=>{
             email
         });
 
-
         if(existingUser){
 
             return res.status(409).json({
@@ -38,16 +37,13 @@ export const register = async(req,res)=>{
             10
         );
 
-
         // 4. Create user
-
         const user = await User.create({
 
             email,
             password:hashedPassword,
             role
         });
-
 
         // 5. Send response
 
@@ -60,9 +56,7 @@ export const register = async(req,res)=>{
                 email:user.email,
                 role:user.role
             },
-
             message:"User registered successfully"
-
         });
 
     }catch(error){
@@ -94,7 +88,6 @@ export const login = async(req,res)=>{
             email
         });
 
-
         if(!user){
 
             return res.status(401).json({
@@ -103,7 +96,6 @@ export const login = async(req,res)=>{
             });
 
         }
-
 
         // Compare password
 
@@ -116,7 +108,7 @@ export const login = async(req,res)=>{
 
             return res.status(401).json({
                 success:false,
-                message:"Invalid credentials"
+                message:"Incorrect password"
             });
 
         }
@@ -129,7 +121,6 @@ export const login = async(req,res)=>{
             },
 
             process.env.JWT_SECRET,
-
             {
                 expiresIn:"1d"
             }

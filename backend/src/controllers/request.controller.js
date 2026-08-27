@@ -17,11 +17,10 @@ export const createRequest = async(req,res)=>{
 
             return res.status(404).json({
                 success:false,
-                message:"Hospital profile not found"
+                message:"Hospital profile not found cannot post shift request"
             });
 
         }
-
 
         const request = await StaffingRequest.create({
 
@@ -64,7 +63,6 @@ export const getAvailableRequests = async(req,res)=>{
                 "hospitalId",
                 "hospitalName city address"
             );
-
 
         res.status(200).json({
 

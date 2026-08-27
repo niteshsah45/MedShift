@@ -20,6 +20,28 @@ const assignmentSchema = new mongoose.Schema({
         required:true
     },
 
+
+    shiftDate:{
+        type:Date,
+        required:true
+    },
+
+    startTime:{
+        type:String,
+        required:true
+    },
+
+    endTime:{
+        type:String,
+        required:true
+    },
+
+    location:{
+        type:String,
+        required:true
+    },
+
+
     status:{
         type:String,
         enum:[
@@ -29,6 +51,7 @@ const assignmentSchema = new mongoose.Schema({
         ],
         default:"ACTIVE"
     }
+
 
 },{
     timestamps:true
