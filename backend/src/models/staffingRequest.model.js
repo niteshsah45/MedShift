@@ -26,17 +26,19 @@ const staffingRequestSchema = new mongoose.Schema(
 
 
     specialization:{
-        type:String
+        type:String,
+        required:true
     },
 
 
     requiredExperience:{
         type:Number,
-        default:0
+        default:0,
+        required:true
     },
 
 
-    date:{
+    shiftDate:{
         type:Date,
         required:true
     },
@@ -74,7 +76,6 @@ const staffingRequestSchema = new mongoose.Schema(
         type:Number,
         default:0
     },
-
 
     status:{
         type:String,

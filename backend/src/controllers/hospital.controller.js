@@ -5,7 +5,6 @@ export const createHospitalProfile = async(req,res)=>{
 
     try{
 
-
         const existingHospital =
             await Hospital.findOne({
                 userId:req.user.id

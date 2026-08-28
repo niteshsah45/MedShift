@@ -41,7 +41,7 @@ const professionalSchema = new mongoose.Schema(
         qualifications:[
             String
         ],
-
+        
         city:{
             type:String,
             required:true,
@@ -69,6 +69,5 @@ mongoose.model(
     "Professional",
     professionalSchema
 );
-
 
 export default Professional;
