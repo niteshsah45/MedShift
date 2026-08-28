@@ -1,5 +1,5 @@
 import express from 'express';
-import {getMyAssignments} from '../controllers/assignment.controller.js';
+import {getMyAssignments,getHospitalAssignments} from '../controllers/assignment.controller.js';
 
 import {verifyToken} from '../middlewares/auth.middleware.js';
 import {allowRoles} from '../middlewares/role.middleware.js';
@@ -12,5 +12,12 @@ router.get(
     allowRoles("professional"),
     getMyAssignments
 );
+
+router.get(
+    "/hospital",
+    verifyToken,
+    allowRoles("hospital"),
+    getHospitalAssignments
+)
 
 export default router;

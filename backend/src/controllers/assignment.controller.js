@@ -1,6 +1,8 @@
 import Assignment from "../models/assignment.model.js";
 import Professional from "../models/professional.model.js";
 
+import { getHospitalAssignmentsService } from "../services/assignment.service.js";
+
 export const getMyAssignments = async (req, res) => {
 
     try {
@@ -32,6 +34,30 @@ export const getMyAssignments = async (req, res) => {
     } catch (error) {
 
         res.status(500).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
+
+export const getHospitalAssignments = async (req, res) => {
+
+    try {
+
+        const assignments =
+            await getHospitalAssignmentsService(
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            data: assignments
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
             success: false,
             message: error.message
         });
