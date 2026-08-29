@@ -3,13 +3,13 @@ import StaffingRequest from "../models/staffingRequest.model.js";
 import Assignment from "../models/assignment.model.js";
 import Hospital from "../models/hospital.model.js";
 import mongoose from "mongoose";
+import { checkShiftConflict } from "./conflict.service.js";
 
 export const acceptApplicationService = async(applicationId,hospitalId)=>{
 
     // find application
 
     const session = await mongoose.startSession();
-
 
     try{
 
@@ -78,6 +78,22 @@ export const acceptApplicationService = async(applicationId,hospitalId)=>{
             );
 
         }
+
+        // Conflit with other assignments 
+
+        const { conflict } = await checkShiftConflict(
+            application.professionalId,
+            request.shiftDate,
+            request.startTime,
+            request.endTime
+        );
+
+        if (conflict) {
+            throw new Error(
+                "Professional already has an overlapping assignment"
+            );
+        }
+
         // update application
 
         application.status="ACCEPTED";

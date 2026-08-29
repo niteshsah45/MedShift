@@ -18,6 +18,7 @@ app.use("/api/v1/applications",applicationRoutes);
 app.use("/api/v1/assignments",assignmentRoutes);
 
 
+
 app.get("/", (req,res)=>{
     res.json({
         success:true,

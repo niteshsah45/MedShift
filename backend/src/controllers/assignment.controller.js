@@ -2,7 +2,7 @@ import Assignment from "../models/assignment.model.js";
 import Professional from "../models/professional.model.js";
 
 import { getHospitalAssignmentsService } from "../services/assignment.service.js";
-
+import { completeAssignmentService } from "../services/assignment.service.js";
 export const getMyAssignments = async (req, res) => {
 
     try {
@@ -53,6 +53,34 @@ export const getHospitalAssignments = async (req, res) => {
         res.status(200).json({
             success: true,
             data: assignments
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+
+    }
+};
+
+export const completeAssignment = async (req, res) => {
+
+    try {
+
+        const { assignmentId } = req.params;
+
+        const assignment =
+            await completeAssignmentService(
+                assignmentId,
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            data: assignment,
+            message: "Assignment completed"
         });
 
     } catch (error) {

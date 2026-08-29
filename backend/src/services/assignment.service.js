@@ -34,3 +34,67 @@ export const getHospitalAssignmentsService = async (userId) => {
 
     return assignments;
 };
+
+export const completeAssignmentService = async (
+    assignmentId,
+    userId
+) => {
+
+    // Find hospital belonging to logged-in user
+    const hospital = await Hospital.findOne({
+        userId
+    });
+
+    if (!hospital) {
+        throw new Error("Hospital profile not found");
+    }
+
+
+    // Find assignment
+    const assignment = await Assignment.findById(
+        assignmentId
+    );
+
+    if (!assignment) {
+        throw new Error("Assignment not found");
+    }
+
+
+    // Check current assignment state
+    if (assignment.status !== "ACTIVE") {
+        throw new Error(
+            "Assignment is already processed"
+        );
+    }
+
+
+    // Find related staffing request
+    const request = await StaffingRequest.findById(
+        assignment.requestId
+    );
+
+    if (!request) {
+        throw new Error(
+            "Staffing request not found"
+        );
+    }
+
+
+    // Ownership check
+    if (
+        request.hospitalId.toString() !==
+        hospital._id.toString()
+    ) {
+        throw new Error(
+            "You cannot complete this assignment"
+        );
+    }
+
+
+    // Complete assignment
+    assignment.status = "COMPLETED";
+
+    await assignment.save();
+
+    return assignment;
+};

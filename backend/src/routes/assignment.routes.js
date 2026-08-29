@@ -1,5 +1,5 @@
 import express from 'express';
-import {getMyAssignments,getHospitalAssignments} from '../controllers/assignment.controller.js';
+import {getMyAssignments,getHospitalAssignments,completeAssignment} from '../controllers/assignment.controller.js';
 
 import {verifyToken} from '../middlewares/auth.middleware.js';
 import {allowRoles} from '../middlewares/role.middleware.js';
@@ -18,6 +18,13 @@ router.get(
     verifyToken,
     allowRoles("hospital"),
     getHospitalAssignments
+)
+
+router.patch(
+    "/:assignmentId/complete",
+    verifyToken,
+    allowRoles("hospital"),
+    completeAssignment  
 )
 
 export default router;
