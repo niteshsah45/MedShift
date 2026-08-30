@@ -3,6 +3,9 @@ import Professional from "../models/professional.model.js";
 
 import { getHospitalAssignmentsService } from "../services/assignment.service.js";
 import { completeAssignmentService } from "../services/assignment.service.js";
+
+
+// for professionals to get their assignments
 export const getMyAssignments = async (req, res) => {
 
     try {
@@ -41,6 +44,8 @@ export const getMyAssignments = async (req, res) => {
     }
 };
 
+// for hospitals to get their assignments
+
 export const getHospitalAssignments = async (req, res) => {
 
     try {
@@ -65,6 +70,7 @@ export const getHospitalAssignments = async (req, res) => {
     }
 };
 
+// for hospitals to mark an assignment as completed
 export const completeAssignment = async (req, res) => {
 
     try {

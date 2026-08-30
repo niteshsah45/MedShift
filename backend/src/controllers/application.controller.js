@@ -4,7 +4,10 @@ import StaffingRequest from "../models/staffingRequest.model.js";
 import { checkEligibility } from "../services/eligibilityForApplying.service.js";
 import Hospital from "../models/hospital.model.js";
 import { acceptApplicationService,rejectApplicationService } from "../services/application.service.js";
+import { checkShiftConflict } from "../services/conflict.service.js";
 
+
+// for professionals to apply to a staffing request by passing all the conditions
 
 export const applyToRequest = async(req,res)=>{
 
@@ -58,8 +61,23 @@ export const applyToRequest = async(req,res)=>{
 
             });
         }
-        // prevent hospital users applying
 
+        // prevent from applying overlapping shifts
+        const { conflict } = await checkShiftConflict(
+            professional._id,
+            request.shiftDate,
+            request.startTime,
+            request.endTime
+        );
+
+        if (conflict) {
+            return res.status(409).json({
+                success: false,
+                message:
+                    "You already have an overlapping active assignment"
+            });
+        }
+        // prevent hospital users applying
         const application =
             await Application.create({
 
@@ -98,6 +116,8 @@ export const applyToRequest = async(req,res)=>{
     }
 
 };
+
+// get all the applications for a particular staffing request by the hospital who created the request
 
 export const getApplicationsForHospital_Request = async(req,res)=>{
 
