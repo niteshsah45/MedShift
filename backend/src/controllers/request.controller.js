@@ -1,5 +1,6 @@
 import StaffingRequest from "../models/staffingRequest.model.js";
 import Hospital from "../models/hospital.model.js";
+import closeStaffingRequestService from "../services/staffingrequest.service.js";
 
 
 export const createRequest = async(req,res)=>{
@@ -82,4 +83,36 @@ export const getAvailableRequests = async(req,res)=>{
 
     }
 
+};
+
+// close staffing request by hospital
+
+export const closeStaffingRequest = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const { requestId } = req.params;
+
+        const request =
+            await closeStaffingRequestService(
+                requestId,
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            data: request,
+            message: "Staffing request closed"
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
 };

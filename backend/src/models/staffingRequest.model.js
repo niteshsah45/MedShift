@@ -83,7 +83,9 @@ const staffingRequestSchema = new mongoose.Schema(
             "OPEN",
             "FILLED",
             "CLOSED",
-            "EXPIRED"
+            "EXPIRED",
+            "COMPLETED",
+            "CANCELLED"
         ],
         default:"OPEN"
     }

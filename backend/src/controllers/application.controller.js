@@ -43,6 +43,14 @@ export const applyToRequest = async(req,res)=>{
                 message:"Staffing request not found"
             });
 
+        if (request.status !== "OPEN") {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "This staffing request is not accepting applications"
+            });
+        }
+
         }
         // only with year of experience greater than or equal to the required experience can apply and with same specialization
         const eligibility =

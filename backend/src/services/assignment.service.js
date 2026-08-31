@@ -120,3 +120,228 @@ export const completeAssignmentService = async (
 
     return assignment;
 };
+
+export const cancelAssignmentFromProfessional = async (
+    assignmentId,
+    professionalUserId
+) => {
+
+    // Find professional
+    const professional =
+        await Professional.findOne({
+            userId: professionalUserId
+        });
+
+    if (!professional) {
+        throw new Error(
+            "Professional profile not found"
+        );
+    }
+
+    // Find assignment
+    const assignment =
+        await Assignment.findById(
+            assignmentId
+        );
+
+    if (!assignment) {
+        throw new Error(
+            "Assignment not found"
+        );
+    }
+
+    // Ownership check
+    if (
+        assignment.professionalId.toString() !==
+        professional._id.toString()
+    ) {
+        throw new Error(
+            "You cannot cancel this assignment"
+        );
+    }
+
+    // Only active assignments can be cancelled
+    if (assignment.status !== "ACTIVE") {
+        throw new Error(
+            "Assignment is already processed"
+        );
+    }
+
+    // Find request
+    const request =
+        await StaffingRequest.findById(
+            assignment.requestId
+        );
+
+    if (!request) {
+        throw new Error(
+            "Staffing request not found"
+        );
+    }
+
+    // Cancel assignment
+    assignment.status = "CANCELLED";
+
+    await assignment.save();
+
+
+    // Recalculate active assignments
+    const activeAssignments =
+        await Assignment.countDocuments({
+            requestId: request._id,
+            status: "ACTIVE"
+        });
+
+
+    request.positionsFilled =
+        activeAssignments;
+
+
+    // If vacancy exists, reopen request
+    if (
+        request.positionsFilled <
+        request.requiredPositions
+    ) {
+
+        // Don't reopen intentionally closed requests
+        if (request.status === "FILLED") {
+            request.status = "OPEN";
+        }
+    }
+
+
+    await request.save();
+
+
+    // Find hospital
+    const hospital =
+        await Hospital.findById(
+            request.hospitalId
+        );
+
+    if (hospital) {
+
+        await createNotification({
+            userId: hospital.userId,
+
+            type: "ASSIGNMENT_CANCELLED",
+
+            title:
+                "Assignment Cancelled",
+
+            message:
+                "A professional has cancelled their assignment. A position is now available for this staffing request.",
+
+            relatedId: assignment._id
+        });
+    }
+
+
+    return {
+        assignment,
+        request
+    };
+};
+
+export const cancelAssignmentFromHospital= async (
+    assignmentId,
+    hospitalUserId
+) => {
+
+    // Find hospital
+    const hospital = await Hospital.findOne({
+        userId: hospitalUserId
+    });
+
+    if (!hospital) {
+        throw new Error("Hospital profile not found");
+    }
+
+    // Find assignment
+    const assignment =
+        await Assignment.findById(assignmentId);
+
+    if (!assignment) {
+        throw new Error("Assignment not found");
+    }
+
+    // Find request
+    const request =
+        await StaffingRequest.findById(
+            assignment.requestId
+        );
+
+    if (!request) {
+        throw new Error("Staffing request not found");
+    }
+
+    // Check ownership
+    if (
+        request.hospitalId.toString() !==
+        hospital._id.toString()
+    ) {
+        throw new Error(
+            "You cannot cancel this assignment"
+        );
+    }
+
+    // Assignment must be active
+    if (assignment.status !== "ACTIVE") {
+        throw new Error(
+            "Assignment is already processed"
+        );
+    }
+
+    // Cancel assignment
+    assignment.status = "CANCELLED";
+
+    await assignment.save();
+
+    // Recalculate active assignments
+    const activeAssignments =
+        await Assignment.countDocuments({
+            requestId: request._id,
+            status: "ACTIVE"
+        });
+
+    request.positionsFilled =
+        activeAssignments;
+
+    // Reopen only if request was FILLED
+    if (
+        request.status === "FILLED" &&
+        request.positionsFilled <
+        request.requiredPositions
+    ) {
+        request.status = "OPEN";
+    }
+
+    await request.save();
+
+    // Find professional
+    const professional =
+        await Professional.findById(
+            assignment.professionalId
+        );
+
+    if (professional) {
+
+        await createNotification({
+            userId: professional.userId,
+
+            type: "ASSIGNMENT_CANCELLED",
+
+            title: "Assignment Cancelled",
+
+            message:
+                "Your assignment has been cancelled by the hospital.",
+
+            relatedId: assignment._id
+        });
+    }
+
+    return {
+        assignment,
+        request
+    };
+};

@@ -1,12 +1,13 @@
 import express from "express";
 
-import { createRequest,getAvailableRequests} from "../controllers/request.controller.js";
+import { createRequest,getAvailableRequests,
+    closeStaffingRequest 
+} from "../controllers/request.controller.js";
 
 
 import {   verifyToken} from "../middlewares/auth.middleware.js";
 
 import {    allowRoles } from "../middlewares/role.middleware.js";
-
 
 
 const router = express.Router();
@@ -23,6 +24,12 @@ router.get(
     "/",
     verifyToken,
     getAvailableRequests
+);
+router.patch(
+    "/:requestId/close",
+    verifyToken,
+    allowRoles("hospital"),
+    closeStaffingRequest
 );
 
 
