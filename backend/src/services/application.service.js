@@ -4,89 +4,91 @@ import Assignment from "../models/assignment.model.js";
 import Hospital from "../models/hospital.model.js";
 import mongoose from "mongoose";
 import { checkShiftConflict } from "./conflict.service.js";
+import { createNotification } from "./notification.service.js";
+import Professional from "../models/professional.model.js";
 
-export const acceptApplicationService = async(applicationId,hospitalId)=>{
-
-    // find application
+export const acceptApplicationService = async (
+    applicationId,
+    hospitalId
+) => {
 
     const session = await mongoose.startSession();
 
-    try{
+    try {
 
-         session.startTransaction();
+        session.startTransaction();
 
-            const hospital = await Hospital.findOne({
-            userId:hospitalId
-        });
+        // Find hospital
+        const hospital =
+            await Hospital.findOne({
+                userId: hospitalId
+            }).session(session);
 
-        if(!hospital){
-
-            throw new Error("Hospital profile not found");
-
+        if (!hospital) {
+            throw new Error(
+                "Hospital profile not found"
+            );
         }
+
+        // Find application
         const application =
-            await Application.findById(applicationId).session(session);
+            await Application.findById(
+                applicationId
+            ).session(session);
 
-        if(!application){
-
-            throw new Error("Application not found");
-
+        if (!application) {
+            throw new Error(
+                "Application not found"
+            );
         }
 
-        // check application state
-
-        if(application.status !== "PENDING"){
-
+        // Check application state
+        if (application.status !== "PENDING") {
             throw new Error(
                 "Application already processed"
             );
-
         }
-        // find request
 
+        // Find request
         const request =
             await StaffingRequest.findById(
                 application.requestId
             ).session(session);
 
-        if(!request){
-
+        if (!request) {
             throw new Error(
                 "Staffing request not found"
             );
-
         }
-        if(
-            request.hospitalId.toString()
-            !==
+
+        // Ownership check
+        if (
+            request.hospitalId.toString() !==
             hospital._id.toString()
-        ){
+        ) {
             throw new Error(
                 "You cannot accept applications for this request"
             );
         }
 
-        // check available positions
-
-        if(
+        // Check positions
+        if (
             request.positionsFilled >=
             request.requiredPositions
-        ){
-
+        ) {
             throw new Error(
                 "All positions already filled"
             );
-
         }
 
-        // Conflit with other assignments 
-
-        const { conflict } = await checkShiftConflict(
-            application.professionalId,
-            request.shiftDate,
-            request.startTime,
-            request.endTime
-        );
+        // Check conflict
+        const { conflict } =
+            await checkShiftConflict(
+                application.professionalId,
+                request.shiftDate,
+                request.startTime,
+                request.endTime
+            );
 
         if (conflict) {
             throw new Error(
@@ -94,61 +96,98 @@ export const acceptApplicationService = async(applicationId,hospitalId)=>{
             );
         }
 
-        // update application
+        // Find professional
+        const professional =
+            await Professional.findById(
+                application.professionalId
+            ).session(session);
 
-        application.status="ACCEPTED";
+        if (!professional) {
+            throw new Error(
+                "Professional profile not found"
+            );
+        }
 
-        await application.save({session});
+        // Update application
+        application.status = "ACCEPTED";
 
-        // create assignment
+        await application.save({
+            session
+        });
 
-        const assignment =
-            await Assignment.create([
-                {
+        // Create assignment
+        const assignments =
+            await Assignment.create(
+                [
+                    {
+                        requestId: request._id,
 
-                requestId:request._id,
+                        professionalId:
+                            application.professionalId,
 
-                professionalId:
-                    application.professionalId,
+                        applicationId:
+                            application._id,
 
-                applicationId:
-                    application._id,
+                        shiftDate:
+                            request.shiftDate,
 
-                shiftDate:
-                    request.shiftDate,
+                        startTime:
+                            request.startTime,
 
-                startTime:
-                    request.startTime,
+                        endTime:
+                            request.endTime,
 
-                endTime:
-                    request.endTime,
+                        location:
+                            request.location
+                    }
+                ],
+                { session }
+            );
 
-                location:
-                    request.location
+        const assignment = assignments[0];
 
-            }
-            ],
-            {session}
-        );
-
-        // increase filled positions
-
+        // Increase filled positions
         request.positionsFilled += 1;
 
-        await request.save({session});
+        await request.save({
+            session
+        });
+
+        // Everything database-related succeeded
         await session.commitTransaction();
+
+        // Notification AFTER successful commit
+        await createNotification({
+            userId: professional.userId,
+
+            type: "APPLICATION_ACCEPTED",
+
+            title: "Application Accepted",
+
+            message:
+                "Your application has been accepted and an assignment has been created.",
+
+            relatedId: assignment._id
+        });
+
         return {
             application,
             assignment
         };
-    }
-    catch(error){
 
-        await session.abortTransaction();
+    } catch (error) {
+
+        // Only abort if transaction is still active
+        if (session.inTransaction()) {
+            await session.abortTransaction();
+        }
+
         throw error;
-    }
-    finally{
+
+    } finally {
+
         await session.endSession();
+
     }
 };
 
@@ -222,8 +261,29 @@ export const rejectApplicationService = async(
         // update status
         application.status="REJECTED";
 
+         // find professional
+         const professional =
+            await Professional.findById(
+                application.professionalId
+            );
+
+        if (!professional) {
+            throw new Error(
+                "Professional profile not found"
+            );
+        }
+
 
         await application.save();
+
+        await createNotification({
+            userId: professional.userId,
+            type: "APPLICATION_REJECTED",
+            title: "Application Rejected",
+            message:
+                "Your application for the staffing request has been rejected.",
+            relatedId: application._id
+        });
 
 
         return application;

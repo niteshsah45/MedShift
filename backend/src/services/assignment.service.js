@@ -1,6 +1,8 @@
 import Assignment from "../models/assignment.model.js";
 import Hospital from "../models/hospital.model.js";
 import StaffingRequest from "../models/staffingRequest.model.js";
+import {createNotification} from "./notification.service.js";
+import Professional from "../models/professional.model.js";
 
 export const getHospitalAssignmentsService = async (userId) => {
 
@@ -95,6 +97,26 @@ export const completeAssignmentService = async (
     assignment.status = "COMPLETED";
 
     await assignment.save();
+
+    const professional =
+        await Professional.findById(
+            assignment.professionalId
+        );
+
+    if (!professional) {
+        throw new Error(
+            "Professional profile not found"
+        );
+    }
+
+    await createNotification({
+        userId: professional.userId,
+        type: "ASSIGNMENT_COMPLETED",
+        title: "Assignment Completed",
+        message:
+            "Your staffing assignment has been marked as completed.",
+        relatedId: assignment._id
+    });
 
     return assignment;
 };

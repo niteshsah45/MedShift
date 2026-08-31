@@ -5,6 +5,7 @@ import hospitalRoutes from "./routes/hospital.routes.js";
 import requestRoutes from "./routes/request.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use("/api/v1/hospitals", hospitalRoutes);
 app.use("/api/v1/requests", requestRoutes);
 app.use("/api/v1/applications",applicationRoutes);
 app.use("/api/v1/assignments",assignmentRoutes);
-
+app.use("/api/v1/notifications",notificationRoutes);
 
 
 app.get("/", (req,res)=>{

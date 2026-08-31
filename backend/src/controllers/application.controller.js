@@ -5,7 +5,7 @@ import { checkEligibility } from "../services/eligibilityForApplying.service.js"
 import Hospital from "../models/hospital.model.js";
 import { acceptApplicationService,rejectApplicationService } from "../services/application.service.js";
 import { checkShiftConflict } from "../services/conflict.service.js";
-
+import { createNotification } from "../services/notification.service.js";
 
 // for professionals to apply to a staffing request by passing all the conditions
 
@@ -86,6 +86,24 @@ export const applyToRequest = async(req,res)=>{
                 professionalId:professional._id
 
             });
+
+            // Create notification for the professional
+        const hospital =
+            await Hospital.findById(
+                request.hospitalId
+            );
+
+        if (hospital) {
+
+            await createNotification({
+                userId: hospital.userId,
+                type: "NEW_APPLICATION",
+                title: "New application received",
+                message:
+                    "A professional has applied to your staffing request.",
+                relatedId: application._id
+            });
+        }
 
         res.status(201).json({
 
