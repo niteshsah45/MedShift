@@ -127,14 +127,11 @@ export const acceptApplicationService = async (
                         applicationId:
                             application._id,
 
-                        shiftDate:
-                            request.shiftDate,
+                        startAt:
+                            request.startAt,
 
-                        startTime:
-                            request.startTime,
-
-                        endTime:
-                            request.endTime,
+                        endAt:
+                            request.endAt,
 
                         location:
                             request.location

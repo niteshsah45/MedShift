@@ -58,7 +58,10 @@ export const getAvailableRequests = async(req,res)=>{
 
         const requests = await StaffingRequest
             .find({
-                status:"OPEN"
+                status:"OPEN",
+                startAt:{
+                    $gt: new Date()
+                }
             })
             .populate(
                 "hospitalId",

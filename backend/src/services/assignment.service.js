@@ -31,7 +31,7 @@ export const getHospitalAssignmentsService = async (userId) => {
     )
     .populate(
         "requestId",
-        "department requiredRole specialization shiftDate startTime endTime location pay"
+        "department requiredRole specialization startAt endAt location pay"
     );
 
     return assignments;

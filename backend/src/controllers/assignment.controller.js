@@ -30,7 +30,7 @@ export const getMyAssignments = async (req, res) => {
         })
         .populate(
             "requestId",
-            "department shiftDate startTime endTime location pay"
+            "department startAt endAt location pay"
         );
 
         res.status(200).json({

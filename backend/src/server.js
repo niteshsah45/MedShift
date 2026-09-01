@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async ()=>{
 
     await connectDB();
-
+    startRequestExpirationJob();
 
     app.listen(PORT, () => {
         console.log(`MedShift server running on port ${PORT}`);
