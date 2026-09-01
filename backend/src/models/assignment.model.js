@@ -2,59 +2,59 @@ import mongoose from "mongoose";
 
 const assignmentSchema = new mongoose.Schema({
 
-    requestId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"StaffingRequest",
-        required:true
+    requestId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StaffingRequest",
+        required: true
     },
 
-    professionalId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Professional",
-        required:true
+    professionalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Professional",
+        required: true
     },
 
-    applicationId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Application",
-        required:true
+    applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Application",
+        required: true
     },
 
-
-    shiftDate:{
-        type:Date,
-        required:true
+    startAt: {
+        type: Date,
+        required: true
     },
 
-    startTime:{
-        type:String,
-        required:true
+    endAt: {
+        type: Date,
+        required: true
     },
 
-    endTime:{
-        type:String,
-        required:true
+    location: {
+        type: String,
+        required: true
     },
 
-    location:{
-        type:String,
-        required:true
-    },
-
-
-    status:{
-        type:String,
-        enum:[
+    status: {
+        type: String,
+        enum: [
             "ACTIVE",
             "COMPLETED",
             "CANCELLED"
         ],
-        default:"ACTIVE"
+        default: "ACTIVE"
     }
 
+}, {
+    timestamps: true
+});
 
-},{
-    timestamps:true
+// Helps conflict checking
+assignmentSchema.index({
+    professionalId: 1,
+    status: 1,
+    startAt: 1,
+    endAt: 1
 });
 
 export default mongoose.model(

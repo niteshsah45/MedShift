@@ -1,6 +1,6 @@
 import StaffingRequest from "../models/staffingRequest.model.js";
 import Hospital from "../models/hospital.model.js";
-import closeStaffingRequestService from "../services/staffingrequest.service.js";
+import {closeStaffingRequestService} from "../services/staffingrequest.service.js";
 
 
 export const createRequest = async(req,res)=>{

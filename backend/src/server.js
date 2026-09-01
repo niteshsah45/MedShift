@@ -1,5 +1,6 @@
 import "dotenv/config";
 import app from "./app.js";
+import { startRequestExpirationJob } from "./jobs/requestExpiration.job.js";
 
 import connectDB from "./config/db.js";
 

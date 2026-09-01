@@ -81,13 +81,12 @@ export const acceptApplicationService = async (
             );
         }
 
-        // Check conflict
+        // check if the professional have already shifts already
         const { conflict } =
             await checkShiftConflict(
                 application.professionalId,
-                request.shiftDate,
-                request.startTime,
-                request.endTime
+                request.startAt,
+                request.endAt
             );
 
         if (conflict) {

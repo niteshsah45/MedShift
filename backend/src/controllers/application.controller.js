@@ -9,40 +9,37 @@ import { createNotification } from "../services/notification.service.js";
 
 // for professionals to apply to a staffing request by passing all the conditions
 
-export const applyToRequest = async(req,res)=>{
+export const applyToRequest = async (req, res) => {
 
-    try{
+    try {
 
-        const {requestId}=req.params;
+        const { requestId } = req.params;
 
-        // find professional profile
-
+        // Find professional profile
         const professional =
             await Professional.findOne({
-                userId:req.user.id
+                userId: req.user.id
             });
 
-        if(!professional){
-
+        if (!professional) {
             return res.status(404).json({
-                success:false,
-                message:"Professional profile not found"
+                success: false,
+                message: "Professional profile not found"
             });
-
         }
 
-        // check request exists
-
+        // Find request
         const request =
             await StaffingRequest.findById(requestId);
 
-        if(!request){
-
+        if (!request) {
             return res.status(404).json({
-                success:false,
-                message:"Staffing request not found"
+                success: false,
+                message: "Staffing request not found"
             });
+        }
 
+        // Request must be open
         if (request.status !== "OPEN") {
             return res.status(400).json({
                 success: false,
@@ -51,51 +48,56 @@ export const applyToRequest = async(req,res)=>{
             });
         }
 
+        // Check whether shift has already started
+        if (request.startAt <= new Date()) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "This staffing request has expired"
+            });
         }
-        // only with year of experience greater than or equal to the required experience can apply and with same specialization
+
+        // Eligibility check
         const eligibility =
             checkEligibility(
                 professional,
                 request
             );
 
-        if(!eligibility.eligible){
+        if (!eligibility.eligible) {
 
             return res.status(403).json({
-
-                success:false,
-
-                message:eligibility.reason
-
+                success: false,
+                message: eligibility.reason
             });
         }
 
-        // prevent from applying overlapping shifts
-        const { conflict } = await checkShiftConflict(
-            professional._id,
-            request.shiftDate,
-            request.startTime,
-            request.endTime
-        );
+        // Check overlapping assignment
+        const { conflict } =
+            await checkShiftConflict(
+                professional._id,
+                request.startAt,
+                request.endAt
+            );
 
         if (conflict) {
+
             return res.status(409).json({
                 success: false,
                 message:
                     "You already have an overlapping active assignment"
             });
         }
-        // prevent hospital users applying
+
+        // Create application
         const application =
             await Application.create({
-
-                requestId:request._id,
-
-                professionalId:professional._id
-
+                requestId: request._id,
+                professionalId: professional._id
             });
 
-            // Create notification for the professional
+        // Notify hospital
         const hospital =
             await Hospital.findById(
                 request.hospitalId
@@ -113,34 +115,28 @@ export const applyToRequest = async(req,res)=>{
             });
         }
 
-        res.status(201).json({
-
-            success:true,
-
-            data:application,
-
-            message:"Application submitted"
-
+        return res.status(201).json({
+            success: true,
+            data: application,
+            message: "Application submitted"
         });
 
-    }catch(error){
+    } catch (error) {
 
-        if(error.code===11000){
+        if (error.code === 11000) {
 
             return res.status(409).json({
-                success:false,
-                message:"Already applied for this request"
+                success: false,
+                message:
+                    "Already applied for this request"
             });
-
         }
 
-        res.status(500).json({
-            success:false,
-            message:error.message
+        return res.status(500).json({
+            success: false,
+            message: error.message
         });
-
     }
-
 };
 
 // get all the applications for a particular staffing request by the hospital who created the request

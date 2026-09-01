@@ -1,101 +1,76 @@
 import mongoose from "mongoose";
 
-const staffingRequestSchema = new mongoose.Schema(
-{
-    hospitalId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Hospital",
-        required:true
+const staffingRequestSchema = new mongoose.Schema({
+
+    hospitalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Hospital",
+        required: true
     },
 
-
-    department:{
-        type:String,
-        required:true
+    department: {
+        type: String,
+        required: true
     },
 
-
-    requiredRole:{
-        type:String,
-        enum:[
-            "doctor",
-            "nurse"
-        ],
-        required:true
+    requiredRole: {
+        type: String,
+        required: true
     },
 
-
-    specialization:{
-        type:String,
-        required:true
+    specialization: {
+        type: String
     },
 
-
-    requiredExperience:{
-        type:Number,
-        default:0,
-        required:true
+    requiredExperience: {
+        type: Number,
+        required: true
     },
 
-
-    shiftDate:{
-        type:Date,
-        required:true
+    startAt: {
+        type: Date,
+        required: true
     },
 
-
-    startTime:{
-        type:String,
-        required:true
+    endAt: {
+        type: Date,
+        required: true
     },
 
-
-    endTime:{
-        type:String,
-        required:true
+    pay: {
+        type: Number,
+        required: true
     },
 
-
-    pay:{
-        type:Number,
-        required:true
+    positions: {
+        type: Number,
+        required: true
     },
 
-
-    positions:{
-        type:Number,
-        required:true
+    positionsFilled: {
+        type: Number,
+        default: 0
     },
 
-    location:{
-        type:String,
-        required:true
-    },
-    
-    positionsFilled:{
-        type:Number,
-        default:0
+    location: {
+        type: String,
+        required: true
     },
 
-    status:{
-        type:String,
-        enum:[
+    status: {
+        type: String,
+        enum: [
             "OPEN",
             "FILLED",
             "CLOSED",
-            "EXPIRED",
-            "COMPLETED",
-            "CANCELLED"
+            "EXPIRED"
         ],
-        default:"OPEN"
+        default: "OPEN"
     }
 
-},
-{
-    timestamps:true
-}
-);
-
+}, {
+    timestamps: true
+});
 
 const StaffingRequest =
 mongoose.model(
