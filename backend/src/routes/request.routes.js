@@ -8,6 +8,7 @@ import { createRequest,getAvailableRequests,
 import {   verifyToken} from "../middlewares/auth.middleware.js";
 
 import {    allowRoles } from "../middlewares/role.middleware.js";
+import { requireApprovedHospital } from "../middlewares/verification.middleware.js";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.post(
     "/",
     verifyToken,
     allowRoles("hospital"),
+    requireApprovedHospital,
     createRequest
 );
 
@@ -28,6 +30,7 @@ router.patch(
     "/:requestId/close",
     verifyToken,
     allowRoles("hospital"),
+    requireApprovedHospital,
     closeStaffingRequest
 );
 

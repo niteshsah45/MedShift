@@ -23,6 +23,13 @@ export const createRequest = async(req,res)=>{
 
         }
 
+        if (hospital.verificationStatus !== "APPROVED") {
+            return res.status(403).json({
+                success: false,
+                message: "Hospital verification is required before creating staffing requests"
+            });
+        }
+
         const request = await StaffingRequest.create({
 
             hospitalId:hospital._id,

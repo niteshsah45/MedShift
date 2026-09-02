@@ -6,6 +6,10 @@ import { applyToRequest,
     rejectApplication
 } from "../controllers/application.controller.js";
 
+import { requireApprovedProfessional ,
+    requireApprovedHospital
+} from "../middlewares/verification.middleware.js";
+
 
 import { verifyToken} from "../middlewares/auth.middleware.js";
 
@@ -25,6 +29,7 @@ router.post(
     "/requests/:requestId/apply",
     verifyToken,
     allowRoles("professional"),
+    requireApprovedProfessional,
     applyToRequest
 );
 
@@ -35,22 +40,24 @@ router.get(
         console.log("APPLICATION VIEW ROUTE HIT");
 
         next();
-
     },
     verifyToken,
     allowRoles("hospital"),
+    requireApprovedHospital,
     getApplicationsForHospital_Request
 );
 router.patch(
     "/:applicationId/accept",
     verifyToken,
     allowRoles("hospital"),
+    requireApprovedHospital,
     acceptApplication
 );
 router.patch(
     "/:applicationId/reject",
     verifyToken,
     allowRoles("hospital"),
+    requireApprovedHospital,
     rejectApplication
 )
 

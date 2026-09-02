@@ -17,6 +17,8 @@ const notificationSchema = new mongoose.Schema({
             "APPLICATION_REJECTED",
             "ASSIGNMENT_COMPLETED",
             "ASSIGNMENT_CANCELLED",
+            "VERIFICATION_APPROVED",
+            "VERIFICATION_REJECTED",
             "SHIFT_REMINDER"
         ],
         required: true
