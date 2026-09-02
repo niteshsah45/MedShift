@@ -1,4 +1,5 @@
 import Professional from "../models/professional.model.js";
+import Hospital from "../models/hospital.model.js";
 
 export const requireApprovedProfessional = async (req, res, next) => {
     try {

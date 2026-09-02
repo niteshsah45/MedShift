@@ -1,4 +1,5 @@
 import Professional from "../models/professional.model.js";
+import {getMyProfessionalService, updateMyProfessionalService} from "../services/professionalProfile.service.js";
 
 export const createProfessionalProfile = async(req,res)=>{
 
@@ -47,4 +48,53 @@ export const createProfessionalProfile = async(req,res)=>{
 
     }
 
+};
+
+// profile retrieval and update functions
+
+export const getMyProfessional = async (req, res) => {
+
+    try {
+
+        const professional = await getMyProfessionalService(
+            req.user.id
+        );
+
+        res.status(200).json({
+            success: true,
+            data: professional
+        });
+
+    } catch (error) {
+
+        res.status(404).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+export const updateMyProfessional = async (req, res) => {
+
+    try {
+
+        const professional = await updateMyProfessionalService(
+            req.user.id,
+            req.body
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Professional profile updated successfully",
+            data: professional
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
 };

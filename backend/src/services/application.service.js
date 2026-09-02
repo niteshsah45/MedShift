@@ -74,7 +74,7 @@ export const acceptApplicationService = async (
         // Check positions
         if (
             request.positionsFilled >=
-            request.requiredPositions
+            request.positions
         ) {
             throw new Error(
                 "All positions already filled"
@@ -144,6 +144,11 @@ export const acceptApplicationService = async (
 
         // Increase filled positions
         request.positionsFilled += 1;
+
+        if (request.positionsFilled >= request.positions) {
+            request.status = "FILLED";
+        }
+
 
         await request.save({
             session

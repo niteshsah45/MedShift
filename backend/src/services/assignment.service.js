@@ -311,7 +311,7 @@ export const cancelAssignmentFromHospital= async (
     if (
         request.status === "FILLED" &&
         request.positionsFilled <
-        request.requiredPositions
+        request.positions
     ) {
         request.status = "OPEN";
     }

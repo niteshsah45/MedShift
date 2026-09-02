@@ -28,18 +28,6 @@ export const applyToRequest = async (req, res) => {
             });
         }
 
-        // check the status of the professional profile
-
-        if (professional.verificationStatus !== "APPROVED") {
-
-            return res.status(403).json({
-                success: false,
-                message:
-                    "Your professional profile must be verified before applying"
-            });
-
-        }
-
         // Find request
         const request =
             await StaffingRequest.findById(requestId);

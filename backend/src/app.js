@@ -19,8 +19,7 @@ app.use("/api/v1/requests", requestRoutes);
 app.use("/api/v1/applications",applicationRoutes);
 app.use("/api/v1/assignments",assignmentRoutes);
 app.use("/api/v1/notifications",notificationRoutes);
-app.use("/api/v1/professionals/verifications",verificationRoutes);
-app.use("/api/v1/hospitals/verifications",verificationRoutes);
+app.use("/api/v1/verifications",verificationRoutes);
 
 
 app.get("/", (req,res)=>{

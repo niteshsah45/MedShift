@@ -1,6 +1,9 @@
 import express from "express";
 
-import {createProfessionalProfile} from "../controllers/professional.controller.js";
+import {createProfessionalProfile,
+    getMyProfessional,
+    updateMyProfessional
+} from "../controllers/professional.controller.js";
 
 import { verifyToken } from "../middlewares/auth.middleware.js";
 
@@ -17,3 +20,17 @@ router.post(
     createProfessionalProfile
 );
 export default router;
+
+router.get(
+    "/me",
+    verifyToken,
+    allowRoles("professional"),
+    getMyProfessional
+);
+
+router.patch(
+    "/me",
+    verifyToken,
+    allowRoles("professional"),
+    updateMyProfessional
+);
