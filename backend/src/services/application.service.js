@@ -71,22 +71,20 @@ export const acceptApplicationService = async (
             );
         }
 
-        // Check positions
-        if (
-            request.positionsFilled >=
-            request.positions
-        ) {
+        // Check request state
+        if (request.status !== "OPEN") {
             throw new Error(
-                "All positions already filled"
+                "Staffing request is not open"
             );
         }
 
-        // check if the professional have already shifts already
+        // Check professional shift conflict
         const { conflict } =
             await checkShiftConflict(
                 application.professionalId,
                 request.startAt,
-                request.endAt
+                request.endAt,
+                session
             );
 
         if (conflict) {
@@ -107,6 +105,36 @@ export const acceptApplicationService = async (
             );
         }
 
+        // Atomically reserve one position
+        const updatedRequest =
+            await StaffingRequest.findOneAndUpdate(
+                {
+                    _id: request._id,
+                    status: "OPEN",
+                    $expr: {
+                        $lt: [
+                            "$positionsFilled",
+                            "$positions"
+                        ]
+                    }
+                },
+                {
+                    $inc: {
+                        positionsFilled: 1
+                    }
+                },
+                {
+                    new: true,
+                    session
+                }
+            );
+
+        if (!updatedRequest) {
+            throw new Error(
+                "No position available"
+            );
+        }
+
         // Update application
         application.status = "ACCEPTED";
 
@@ -119,7 +147,8 @@ export const acceptApplicationService = async (
             await Assignment.create(
                 [
                     {
-                        requestId: request._id,
+                        requestId:
+                            request._id,
 
                         professionalId:
                             application.professionalId,
@@ -137,24 +166,27 @@ export const acceptApplicationService = async (
                             request.location
                     }
                 ],
-                { session }
+                {
+                    session
+                }
             );
 
         const assignment = assignments[0];
 
-        // Increase filled positions
-        request.positionsFilled += 1;
+        // Mark request as FILLED
+        if (
+            updatedRequest.positionsFilled >=
+            updatedRequest.positions
+        ) {
 
-        if (request.positionsFilled >= request.positions) {
-            request.status = "FILLED";
+            updatedRequest.status = "FILLED";
+
+            await updatedRequest.save({
+                session
+            });
         }
 
-
-        await request.save({
-            session
-        });
-
-        // Everything database-related succeeded
+        // Commit transaction
         await session.commitTransaction();
 
         // Notification AFTER successful commit
@@ -178,7 +210,6 @@ export const acceptApplicationService = async (
 
     } catch (error) {
 
-        // Only abort if transaction is still active
         if (session.inTransaction()) {
             await session.abortTransaction();
         }
@@ -188,7 +219,6 @@ export const acceptApplicationService = async (
     } finally {
 
         await session.endSession();
-
     }
 };
 
