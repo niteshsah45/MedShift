@@ -9,6 +9,9 @@ import {
 import { verifyToken }
     from "../middlewares/auth.middleware.js";
 
+import {validate} from "../middlewares/validation.middleware.js";
+import {notificationIdSchema} from "../validations/notification.validator.js";
+
 const router = express.Router();
 
 router.get(
@@ -20,12 +23,14 @@ router.get(
 router.patch(
     "/:notificationId/read",
     verifyToken,
+    validate(notificationIdSchema,"params"),
     markNotificationAsRead
 );
 
 router.patch(
     "/read-all",
     verifyToken,
+    validate(notificationIdSchema,"params"),
     markAllNotificationsAsRead
 );
 

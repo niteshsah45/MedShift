@@ -72,6 +72,16 @@ const staffingRequestSchema = new mongoose.Schema({
     timestamps: true
 });
 
+staffingRequestSchema.index({
+    hospitalId: 1,
+    createdAt: -1
+});
+
+staffingRequestSchema.index({
+    status: 1,
+    startAt: 1
+});
+
 const StaffingRequest =
 mongoose.model(
     "StaffingRequest",

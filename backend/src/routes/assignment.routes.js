@@ -7,6 +7,8 @@ import {getMyAssignments,getHospitalAssignments,completeAssignment,
 import {verifyToken} from '../middlewares/auth.middleware.js';
 import {allowRoles} from '../middlewares/role.middleware.js';
 import {requireApprovedProfessional,requireApprovedHospital} from '../middlewares/verification.middleware.js';
+import {validate} from '../middlewares/validation.middleware.js';
+import {assignmentIdSchema} from '../validations/assignment.validator.js';
 
 const router = express.Router();
 
@@ -31,6 +33,7 @@ router.patch(
     verifyToken,
     allowRoles("hospital"),
     requireApprovedHospital,
+    validate(assignmentIdSchema,"params"),
     completeAssignment  
 )
 
@@ -39,6 +42,7 @@ router.patch(
     verifyToken,
     allowRoles("professional"),
     requireApprovedProfessional,
+    validate(assignmentIdSchema,"params"),
     cancelAssignmentByProfessional
 )
 router.patch(
@@ -46,6 +50,7 @@ router.patch(
     verifyToken,
     allowRoles("hospital"),
     requireApprovedHospital,
+    validate(assignmentIdSchema,"params"),
     cancelAssignmentByHospital
 )
 

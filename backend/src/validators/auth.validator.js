@@ -1,17 +1,33 @@
-export const validateRegister = (data)=>{
+import Joi from "joi";
 
-    const {email,password,role}=data;
+export const registerSchema = Joi.object({
 
+    email: Joi.string()
+        .trim()
+        .lowercase()
+        .email()
+        .required(),
 
-    if(!email || !password || !role){
-        throw new Error("All fields are required");
-    }
+    password: Joi.string()
+        .min(6)
+        .max(100)
+        .required(),
 
+    role: Joi.string()
+        .valid("hospital", "professional")
+        .required()
 
-    if(password.length < 6){
-        throw new Error("Password must be at least 6 characters");
-    }
+});
 
+export const loginSchema = Joi.object({
 
-    return true;
-};
+    email: Joi.string()
+        .trim()
+        .lowercase()
+        .email()
+        .required(),
+
+    password: Joi.string()
+        .required()
+
+});

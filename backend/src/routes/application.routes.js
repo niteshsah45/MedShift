@@ -17,6 +17,11 @@ import { verifyToken} from "../middlewares/auth.middleware.js";
 
 import {allowRoles} from "../middlewares/role.middleware.js";
 
+import {validate} from "../middlewares/validation.middleware.js";
+import {requestIdSchema,
+    applicationIdSchema
+} from "../validations/application.validator.js";
+
 const router = express.Router();
 
 router.get("/test", (req,res)=>{
@@ -31,6 +36,7 @@ router.post(
     verifyToken,
     allowRoles("professional"),
     requireApprovedProfessional,
+    validate(requestIdSchema,"params"),
     applyToRequest
 );
 
@@ -51,6 +57,7 @@ router.patch(
     "/:applicationId/accept",
     verifyToken,
     allowRoles("hospital"),
+    validate(applicationIdSchema,"params"),
     requireApprovedHospital,
     acceptApplication
 );
@@ -58,6 +65,7 @@ router.patch(
     "/:applicationId/reject",
     verifyToken,
     allowRoles("hospital"),
+    validate(applicationIdSchema,"params"),
     requireApprovedHospital,
     rejectApplication
 )

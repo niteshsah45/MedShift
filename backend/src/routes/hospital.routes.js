@@ -7,19 +7,31 @@ import {createHospitalProfile,
 
 
 import {  verifyToken} from "../middlewares/auth.middleware.js";
-
-
 import {  allowRoles } from "../middlewares/role.middleware.js";
+import {validate} from "../middlewares/validation.middleware.js";
+import {createHospitalSchema} from "../validations/hospital.validator.js";
 
 
 
 const router = express.Router();
 
 
+export const updateHospitalSchema =
+    createHospitalSchema.fork(
+        [
+            "hospitalName",
+            "address",
+            "city",
+            "departments"
+        ],
+        (schema) => schema.optional()
+    );
+
 router.post(
     "/",
     verifyToken,
     allowRoles("hospital"),
+    validate(createHospitalSchema),
     createHospitalProfile
 );
 
@@ -34,6 +46,7 @@ router.patch(
     "/me",
     verifyToken,
     allowRoles("hospital"),
+    validate(updateHospitalSchema),
     updateMyHospital
 );
 

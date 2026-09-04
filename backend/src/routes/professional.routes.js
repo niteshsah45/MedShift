@@ -8,15 +8,31 @@ import {createProfessionalProfile,
 import { verifyToken } from "../middlewares/auth.middleware.js";
 
 import { allowRoles} from "../middlewares/role.middleware.js";
+import {validate} from "../middlewares/validation.middleware.js";
+import {createProfessionalSchema} from "../validations/professional.validator.js";
 
 
 const router = express.Router();
+
+export const updateProfessionalSchema =
+    createProfessionalSchema.fork(
+        [
+            "name",
+            "role",
+            "specialization",
+            "experienceYears",
+            "qualifications",
+            "city"
+        ],
+        (schema) => schema.optional()
+    );
 
 
 router.post(
     "/",
     verifyToken,
     allowRoles("professional"),
+    validate(createProfessionalSchema),
     createProfessionalProfile
 );
 export default router;
@@ -32,5 +48,6 @@ router.patch(
     "/me",
     verifyToken,
     allowRoles("professional"),
+    validate(updateProfessionalSchema),
     updateMyProfessional
 );

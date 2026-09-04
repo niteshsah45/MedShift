@@ -2,6 +2,8 @@ import express from "express";
 import { register,login } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { allowRoles } from "../middlewares/role.middleware.js";
+import {validate} from "../middlewares/validation.middleware.js";
+import {loginSchema,registerSchema} from "../validations/auth.validation.js";
 
 const router = express.Router();
 
@@ -26,6 +28,12 @@ router.get(
 
     }
 );
-router.post("/register", register);
-router.post("/login",login);
+router.post("/register",
+     validate(registerSchema),
+      register);
+
+router.post("/login",
+    validate(loginSchema),
+    login);
+    
 export default router;
