@@ -319,3 +319,32 @@ export const rejectApplicationService = async(
 
         return application;
 };
+
+export const getMyApplicationsServiceForProfessional = async (userId) => {
+
+    const professional =
+        await Professional.findOne({
+            userId
+        });
+
+    if (!professional) {
+        throw new Error(
+            "Professional profile not found"
+        );
+    }
+
+    const applications =
+        await Application.find({
+            professionalId: professional._id
+        })
+        .populate({
+            path: "requestId",
+            select:
+                "hospitalId department requiredRole specialization requiredExperience startAt endAt pay positions location status"
+        })
+        .sort({
+            createdAt: -1
+        });
+
+    return applications;
+};

@@ -119,3 +119,28 @@ export const closeStaffingRequest = async (
         });
     }
 };
+
+// get requests for a hospital owned by a hospital
+
+export const getMyRequestsForHospital = async (req, res) => {
+
+    try {
+
+        const requests =
+            await getMyRequestsServiceForHospital(
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            data: requests
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

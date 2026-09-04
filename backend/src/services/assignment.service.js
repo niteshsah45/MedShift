@@ -200,7 +200,7 @@ export const cancelAssignmentFromProfessional = async (
     // If vacancy exists, reopen request
     if (
         request.positionsFilled <
-        request.requiredPositions
+        request.positions
     ) {
 
         // Don't reopen intentionally closed requests

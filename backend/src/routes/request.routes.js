@@ -1,7 +1,8 @@
 import express from "express";
 
 import { createRequest,getAvailableRequests,
-    closeStaffingRequest 
+    closeStaffingRequest,
+    getMyRequestsForHospital
 } from "../controllers/request.controller.js";
 
 
@@ -33,6 +34,15 @@ router.patch(
     requireApprovedHospital,
     closeStaffingRequest
 );
+
+router.get(
+    "/my",
+    verifyToken,
+    allowRoles("hospital"),
+    getMyRequestsForHospital
+)
+
+
 
 
 export default router;

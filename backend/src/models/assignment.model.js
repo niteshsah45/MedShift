@@ -57,6 +57,16 @@ assignmentSchema.index({
     endAt: 1
 });
 
+// prevent duplicate assignments for the same application
+assignmentSchema.index(
+    {
+        applicationId: 1
+    },
+    {
+        unique: true
+    }
+);
+
 export default mongoose.model(
     "Assignment",
     assignmentSchema

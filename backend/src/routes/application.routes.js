@@ -3,7 +3,8 @@ import express from "express";
 import { applyToRequest,
     getApplicationsForHospital_Request,
     acceptApplication,
-    rejectApplication
+    rejectApplication,
+    getMyApplicationsForProfessional
 } from "../controllers/application.controller.js";
 
 import { requireApprovedProfessional ,
@@ -60,5 +61,13 @@ router.patch(
     requireApprovedHospital,
     rejectApplication
 )
+
+// get all the applications for a particular professional
+router.get(
+    "/my",
+    verifyToken,
+    allowRoles("professional"),
+    getMyApplicationsForProfessional
+);
 
 export default router;

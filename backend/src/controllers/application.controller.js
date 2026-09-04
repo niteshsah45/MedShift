@@ -3,7 +3,9 @@ import Professional from "../models/professional.model.js";
 import StaffingRequest from "../models/staffingRequest.model.js";
 import { checkEligibility } from "../services/eligibilityForApplying.service.js";
 import Hospital from "../models/hospital.model.js";
-import { acceptApplicationService,rejectApplicationService } from "../services/application.service.js";
+import { acceptApplicationService,rejectApplicationService,
+    getMyApplicationsServiceForProfessional
+} from "../services/application.service.js";
 import { checkShiftConflict } from "../services/conflict.service.js";
 import { createNotification } from "../services/notification.service.js";
 
@@ -302,4 +304,29 @@ export const rejectApplication = async(req,res)=>{
 
     }
 
+};
+
+// get all the applications for a particular professional
+
+export const getMyApplicationsForProfessional = async (req, res) => {
+
+    try {
+
+        const applications =
+            await getMyApplicationsServiceForProfessional(
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            data: applications
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
 };

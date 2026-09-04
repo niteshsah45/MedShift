@@ -52,3 +52,29 @@ export const closeStaffingRequestService = async (
 
     return request;
 };
+
+// get requests for a hospital owned by a hospital
+
+export const getMyRequestsServiceForHospital = async (userId) => {
+
+    const hospital =
+        await Hospital.findOne({
+            userId
+        });
+
+    if (!hospital) {
+        throw new Error(
+            "Hospital profile not found"
+        );
+    }
+
+    const requests =
+        await StaffingRequest.find({
+            hospitalId: hospital._id
+        })
+        .sort({
+            createdAt: -1
+        });
+
+    return requests;
+};
