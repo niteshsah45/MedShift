@@ -10,7 +10,7 @@ import { verifyToken }
     from "../middlewares/auth.middleware.js";
 
 import {validate} from "../middlewares/validation.middleware.js";
-import {notificationIdSchema} from "../validations/notification.validator.js";
+import {notificationIdSchema} from "../validators/notifications.validator.js";
 
 const router = express.Router();
 

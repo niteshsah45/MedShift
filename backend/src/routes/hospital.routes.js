@@ -9,7 +9,7 @@ import {createHospitalProfile,
 import {  verifyToken} from "../middlewares/auth.middleware.js";
 import {  allowRoles } from "../middlewares/role.middleware.js";
 import {validate} from "../middlewares/validation.middleware.js";
-import {createHospitalSchema} from "../validations/hospital.validator.js";
+import {createHospitalSchema} from "../validators/hospital.validator.js";
 
 
 

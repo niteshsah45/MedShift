@@ -219,7 +219,7 @@ export const rejectProfessionalVerificationService = async (
 // hospital side verification service
 import Hospital from "../models/hospital.model.js";
 
-export const getPendingHospitalsVerificationsService = async () => {
+export const getPendingHospitalsVerificationService = async () => {
     return await Hospital.find({
         verificationStatus: "PENDING"
     }).populate("userId", "email");

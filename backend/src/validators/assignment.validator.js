@@ -1,3 +1,4 @@
+import Joi from "joi";
 export const assignmentIdSchema = Joi.object({
 
     assignmentId: Joi.string()

@@ -8,7 +8,7 @@ import {verifyToken} from '../middlewares/auth.middleware.js';
 import {allowRoles} from '../middlewares/role.middleware.js';
 import {requireApprovedProfessional,requireApprovedHospital} from '../middlewares/verification.middleware.js';
 import {validate} from '../middlewares/validation.middleware.js';
-import {assignmentIdSchema} from '../validations/assignment.validator.js';
+import {assignmentIdSchema} from '../validators/assignment.validator.js';
 
 const router = express.Router();
 

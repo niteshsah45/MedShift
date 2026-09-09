@@ -11,7 +11,7 @@ import {   verifyToken} from "../middlewares/auth.middleware.js";
 import {    allowRoles } from "../middlewares/role.middleware.js";
 import { requireApprovedHospital } from "../middlewares/verification.middleware.js";
 import { validate } from "../middlewares/validation.middleware.js";
-import { createRequestSchema } from "../validations/request.validation.js";
+import { createRequestSchema } from "../validators/request.validator.js";
 
 const router = express.Router();
 

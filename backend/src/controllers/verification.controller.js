@@ -6,7 +6,7 @@ import {
     getProfessionalPendingVerificationsService,
     approveProfessionalVerificationService,
     rejectProfessionalVerificationService,
-    getPendingHospitalsVerificationsService,
+    getPendingHospitalsVerificationService,
     approveHospitalVerificationService,
     rejectHospitalVerificationService       
 } from "../services/verification.service.js";
@@ -192,7 +192,7 @@ export const getPendingHospitalVerifications = async (req, res) => {
 
     try {
 
-        const hospitals = await getPendingHospitalVerificationsService();
+        const hospitals = await getPendingHospitalsVerificationService();
 
         res.status(200).json({
             success: true,

@@ -9,7 +9,7 @@ import { verifyToken } from "../middlewares/auth.middleware.js";
 
 import { allowRoles} from "../middlewares/role.middleware.js";
 import {validate} from "../middlewares/validation.middleware.js";
-import {createProfessionalSchema} from "../validations/professional.validator.js";
+import {createProfessionalSchema} from "../validators/professional.validator.js";
 
 
 const router = express.Router();

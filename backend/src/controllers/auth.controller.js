@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
-import { validateRegister } from "../validators/auth.validator.js";
+import { registerSchema } from "../validators/auth.validator.js";
 import jwt from "jsonwebtoken";
 
 
@@ -12,7 +12,7 @@ export const register = async(req,res)=>{
 
 
         // 1. Validate input
-        validateRegister(req.body);
+        await registerSchema.validateAsync(req.body);
 
         // 2. Check existing user
 

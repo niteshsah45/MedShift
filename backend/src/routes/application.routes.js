@@ -20,7 +20,7 @@ import {allowRoles} from "../middlewares/role.middleware.js";
 import {validate} from "../middlewares/validation.middleware.js";
 import {requestIdSchema,
     applicationIdSchema
-} from "../validations/application.validator.js";
+} from "../validators/application.validator.js";
 
 const router = express.Router();
 
