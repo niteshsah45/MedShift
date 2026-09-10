@@ -53,6 +53,56 @@ export const closeStaffingRequestService = async (
     return request;
 };
 
+
+// reopen the staffing request service
+
+export const reopenStaffingRequestService = async (
+    requestId,
+    userId
+) => {
+
+    const hospital = await Hospital.findOne({
+        userId
+    });
+
+    if (!hospital) {
+        throw new Error("Hospital profile not found");
+    }
+
+    const request = await StaffingRequest.findOne({
+        _id: requestId,
+        hospitalId: hospital._id
+    });
+
+    if (!request) {
+        throw new Error("Staffing request not found");
+    }
+
+    if (request.status !== "CLOSED") {
+        throw new Error(
+            "Only closed staffing requests can be reopened"
+        );
+    }
+
+    if (request.startAt <= new Date()) {
+        throw new Error(
+            "Cannot reopen a staffing request after its start time"
+        );
+    }
+
+    if (request.positionsFilled >= request.positions) {
+        throw new Error(
+            "Cannot reopen a fully filled staffing request"
+        );
+    }
+
+    request.status = "OPEN";
+
+    await request.save();
+
+    return request;
+};
+
 // get requests for a hospital owned by a hospital
 
 export const getMyRequestsServiceForHospital = async (userId) => {

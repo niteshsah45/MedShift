@@ -2,6 +2,7 @@ import express from "express";
 
 import { createRequest,getAvailableRequests,
     closeStaffingRequest,
+    reopenStaffingRequest,
     getMyRequestsForHospital
 } from "../controllers/request.controller.js";
 
@@ -37,6 +38,14 @@ router.patch(
     requireApprovedHospital,
     closeStaffingRequest
 );
+router.patch(
+    "/:requestId/reopen",
+    verifyToken,
+    allowRoles("hospital"),
+    requireApprovedHospital,
+    reopenStaffingRequest
+);
+
 
 router.get(
     "/my",

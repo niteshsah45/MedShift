@@ -7,9 +7,10 @@ import applicationRoutes from "./routes/application.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import verificationRoutes from "./routes/verification.routes.js";
+import cors from "cors";
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/v1/auth", authRoutes);

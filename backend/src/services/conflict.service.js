@@ -3,7 +3,8 @@ import Assignment from "../models/assignment.model.js";
 export const checkShiftConflict = async (
     professionalId,
     startAt,
-    endAt
+    endAt,
+    session
 ) => {
 
     const conflict =
@@ -18,7 +19,7 @@ export const checkShiftConflict = async (
             endAt: {
                 $gt: startAt
             }
-        });
+        }).session(session);
 
     return {
         conflict: !!conflict,
