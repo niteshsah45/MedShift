@@ -94,7 +94,7 @@ function Signup() {
             required
           />
 
-          <label>I am a</label>
+          <label>Role</label>
 
           <select
             name="role"
@@ -102,9 +102,9 @@ function Signup() {
             onChange={handleChange}
             required
           >
-            <option value="">
+            {/* <option value="">
               Select your role
-            </option>
+            </option> */}
 
             <option value="hospital">
               Hospital

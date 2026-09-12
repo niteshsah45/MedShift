@@ -1,24 +1,81 @@
-import { createContext, useContext, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import api from "../services/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState(null);
+
   const [token, setToken] = useState(
     localStorage.getItem("token")
   );
 
-  const login = (userData, jwtToken) => {
+  const [loading, setLoading] = useState(true);
 
-    localStorage.setItem("token", jwtToken);
+  // Get logged-in user from backend
+  const fetchUser = async () => {
+    try {
+      const response = await api.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    setToken(jwtToken);
-    setUser(userData);
+      setUser(response.data.user);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+
+      localStorage.removeItem("token");
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const logout = () => {
+  // Runs when application starts
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
 
+    if (storedToken) {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  // Login
+  const login = async (jwtToken) => {
+    localStorage.setItem("token", jwtToken);
+    setToken(jwtToken);
+
+    try {
+      const response = await api.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
+
+      setUser(response.data.user);
+
+      return response.data.user;
+    } catch (error) {
+      localStorage.removeItem("token");
+      setToken(null);
+      setUser(null);
+
+      throw error;
+    }
+  };
+
+  // Logout
+  const logout = () => {
     localStorage.removeItem("token");
 
     setToken(null);
@@ -30,6 +87,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         token,
+        loading,
         login,
         logout,
       }}

@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { useAuth } from "../context/Authcontext";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
+
+  const navigate = useNavigate();
   const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -21,26 +24,43 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setMessage("");
-    setLoading(true);
+  setMessage("");
+  setLoading(true);
 
-    try {
-      const response = await api.post("/auth/login", formData);
+  try {
+    const response = await api.post(
+      "/auth/login",
+      formData
+    );
 
-      console.log("Login response:", response.data);
+    console.log("Login response:", response.data);
 
-      setMessage("Login successful!");
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message ||
-        "Login failed. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    const jwtToken = response.data.data.token;
+
+    const user = await login(jwtToken);
+
+    // Redirect based on role
+    if (user.role === "hospital") {
+      navigate("/hospital/dashboard");
+    } else if (user.role === "professional") {
+      navigate("/professional/dashboard");
+    } else if (user.role === "admin") {
+      navigate("/admin/dashboard");
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+
+    setMessage(
+      error.response?.data?.message ||
+      "Login failed. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-page">

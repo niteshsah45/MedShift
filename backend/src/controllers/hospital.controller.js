@@ -22,7 +22,6 @@ export const createHospitalProfile = async(req,res)=>{
 
         }
 
-
         const hospital =
             await Hospital.create({
 
@@ -75,7 +74,6 @@ export const getMyHospital = async (req, res) => {
         });
     }
 };
-
 
 export const updateMyHospital = async (req, res) => {
 
