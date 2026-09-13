@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 import api from "../../services/api";
+import ConfirmModal from "../../components/ConfirmModal";
 
 function CreateStaffingRequest() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function CreateStaffingRequest() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -29,7 +31,8 @@ function CreateStaffingRequest() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  // Only validates the form and opens confirmation
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     setError("");
@@ -44,25 +47,39 @@ function CreateStaffingRequest() {
       return;
     }
 
+    // Do NOT create request yet
+    setShowConfirmation(true);
+  };
+
+  // Actually creates the staffing request
+  const createStaffingRequest = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const requestData = {
         department: formData.department,
         requiredRole: formData.requiredRole,
+
         specialization:
           formData.specialization || undefined,
+
         requiredExperience: Number(
           formData.requiredExperience
         ),
+
         startAt: new Date(
           formData.startAt
         ).toISOString(),
+
         endAt: new Date(
           formData.endAt
         ).toISOString(),
+
         pay: Number(formData.pay),
+
         positions: Number(formData.positions),
+
         location: formData.location,
       };
 
@@ -76,6 +93,8 @@ function CreateStaffingRequest() {
         response.data
       );
 
+      setShowConfirmation(false);
+
       setSuccess(
         "Staffing request created successfully."
       );
@@ -84,7 +103,6 @@ function CreateStaffingRequest() {
       setTimeout(() => {
         navigate("/hospital/requests");
       }, 700);
-
     } catch (error) {
       console.error(
         "Failed to create staffing request:",
@@ -95,6 +113,8 @@ function CreateStaffingRequest() {
         error.response?.data?.message ||
           "Failed to create staffing request."
       );
+
+      setShowConfirmation(false);
     } finally {
       setLoading(false);
     }
@@ -113,47 +133,47 @@ function CreateStaffingRequest() {
 
         <nav className="sidebar-nav">
 
-            <Link
-                to="/hospital/dashboard"
-                className="nav-link"
-            >
-                Dashboard
-            </Link>
+          <Link
+            to="/hospital/dashboard"
+            className="nav-link"
+          >
+            Dashboard
+          </Link>
 
-            <Link
-                to="/hospital/requests"
-                className="nav-link active"
-            >
-                My Requests
-            </Link>
+          <Link
+            to="/hospital/requests"
+            className="nav-link active"
+          >
+            My Requests
+          </Link>
 
-            <Link
-                to="/hospital/applications"
-                className="nav-link"
-            >
-                Applications
-            </Link>
+          <Link
+            to="/hospital/applications"
+            className="nav-link"
+          >
+            Applications
+          </Link>
 
-            <Link
-                to="/hospital/assignments"
-                className="nav-link"
-            >
-                Assignments
-            </Link>
+          <Link
+            to="/hospital/assignments"
+            className="nav-link"
+          >
+            Assignments
+          </Link>
 
-            <Link
-                to="/hospital/profile"
-                className="nav-link"
-            >
-                Profile
-            </Link>
+          <Link
+            to="/hospital/profile"
+            className="nav-link"
+          >
+            Profile
+          </Link>
 
-            <Link
-                to="/notifications"
-                className="nav-link"
-            >
-                Notifications
-            </Link>
+          <Link
+            to="/notifications"
+            className="nav-link"
+          >
+            Notifications
+          </Link>
 
         </nav>
 
@@ -419,6 +439,22 @@ function CreateStaffingRequest() {
         </section>
 
       </main>
+
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <ConfirmModal
+          title="Create Staffing Request"
+          message="Are you sure you want to create this staffing request? It will become available for healthcare professionals to apply."
+          confirmText="Create Request"
+          cancelText="Cancel"
+          onCancel={() =>
+            setShowConfirmation(false)
+          }
+          onConfirm={createStaffingRequest}
+          loading={loading}
+        />
+      )}
 
     </div>
   );

@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
+import ConfirmModal from "../../components/ConfirmModal";
 import api from "../../services/api";
 
 function HospitalRequests() {
   const navigate = useNavigate();
 
   const [requests, setRequests] = useState([]);
+  const [confirmation, setConfirmation] = useState(null);
+
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
+
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const fetchRequests = async () => {
     try {
@@ -25,7 +31,10 @@ function HospitalRequests() {
           : []
       );
     } catch (error) {
-      console.error("Failed to load requests:", error);
+      console.error(
+        "Failed to load requests:",
+        error
+      );
 
       setError(
         error.response?.data?.message ||
@@ -43,30 +52,101 @@ function HospitalRequests() {
   const formatDate = (date) => {
     if (!date) return "—";
 
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    return new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   const formatTime = (date) => {
     if (!date) return "—";
 
-    return new Date(date).toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return new Date(date).toLocaleTimeString(
+      "en-IN",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
   };
 
   const getStatusClass = (status) => {
     return `status-badge status-${status?.toLowerCase()}`;
   };
 
+  // Close request
+  const handleClose = async (requestId) => {
+    try {
+      setActionLoading(requestId);
+      setError("");
+      setSuccess("");
+
+      await api.patch(
+        `/requests/${requestId}/close`
+      );
+
+      setSuccess(
+        "Staffing request closed successfully."
+      );
+
+      await fetchRequests();
+
+    } catch (error) {
+      console.error(
+        "Failed to close request:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to close staffing request."
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Reopen request
+  const handleReopen = async (requestId) => {
+    try {
+      setActionLoading(requestId);
+      setError("");
+      setSuccess("");
+
+      await api.patch(
+        `/requests/${requestId}/reopen`
+      );
+
+      setSuccess(
+        "Staffing request reopened successfully."
+      );
+
+      await fetchRequests();
+
+    } catch (error) {
+      console.error(
+        "Failed to reopen request:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to reopen staffing request."
+      );
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   return (
     <div className="dashboard">
 
       {/* Sidebar */}
+
       <aside className="sidebar">
 
         <div className="sidebar-logo">
@@ -76,59 +156,47 @@ function HospitalRequests() {
 
         <nav className="sidebar-nav">
 
-          <button
+          <Link
+            to="/hospital/dashboard"
             className="nav-link"
-            onClick={() =>
-              navigate("/hospital/dashboard")
-            }
           >
             Dashboard
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/hospital/requests"
             className="nav-link active"
-            onClick={() =>
-              navigate("/hospital/requests")
-            }
           >
             My Requests
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/hospital/applications"
             className="nav-link"
-            onClick={() =>
-              navigate("/hospital/applications")
-            }
           >
             Applications
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/hospital/assignments"
             className="nav-link"
-            onClick={() =>
-              navigate("/hospital/assignments")
-            }
           >
             Assignments
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/hospital/profile"
             className="nav-link"
-            onClick={() =>
-              navigate("/hospital/profile")
-            }
           >
             Profile
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/notifications"
             className="nav-link"
-            onClick={() =>
-              navigate("/notifications")
-            }
           >
             Notifications
-          </button>
+          </Link>
 
         </nav>
 
@@ -136,6 +204,7 @@ function HospitalRequests() {
 
 
       {/* Main */}
+
       <main className="dashboard-content">
 
         <header className="dashboard-header">
@@ -152,7 +221,9 @@ function HospitalRequests() {
           <button
             className="primary-button"
             onClick={() =>
-              navigate("/hospital/requests/create")
+              navigate(
+                "/hospital/requests/create"
+              )
             }
           >
             + Create Request
@@ -162,27 +233,43 @@ function HospitalRequests() {
 
 
         {/* Error */}
+
         {error && (
           <div className="dashboard-error">
+
             <span>{error}</span>
 
             <button onClick={fetchRequests}>
               Try Again
             </button>
+
+          </div>
+        )}
+
+
+        {/* Success */}
+
+        {success && (
+          <div className="application-success">
+            {success}
           </div>
         )}
 
 
         {/* Loading */}
+
         {loading ? (
 
           <div className="dashboard-loading">
-            <p>Loading staffing requests...</p>
+            <p>
+              Loading staffing requests...
+            </p>
           </div>
 
         ) : requests.length === 0 ? (
 
-          /* Empty */
+          /* Empty state */
+
           <section className="dashboard-section">
 
             <div className="empty-state">
@@ -191,7 +278,9 @@ function HospitalRequests() {
                 📋
               </div>
 
-              <h3>No staffing requests</h3>
+              <h3>
+                No staffing requests
+              </h3>
 
               <p>
                 You haven't created any staffing
@@ -216,6 +305,7 @@ function HospitalRequests() {
         ) : (
 
           /* Requests */
+
           <section className="dashboard-section">
 
             <div className="section-header">
@@ -249,6 +339,7 @@ function HospitalRequests() {
                     <th>Positions</th>
                     <th>Pay</th>
                     <th>Status</th>
+                    <th>Action</th>
                   </tr>
 
                 </thead>
@@ -261,6 +352,7 @@ function HospitalRequests() {
                     <tr key={request._id}>
 
                       {/* Role */}
+
                       <td>
 
                         <strong>
@@ -277,12 +369,14 @@ function HospitalRequests() {
 
 
                       {/* Department */}
+
                       <td>
                         {request.department || "—"}
                       </td>
 
 
                       {/* Shift */}
+
                       <td>
 
                         <div>
@@ -305,6 +399,7 @@ function HospitalRequests() {
 
 
                       {/* Positions */}
+
                       <td>
                         {request.positionsFilled || 0}
                         {" / "}
@@ -313,12 +408,14 @@ function HospitalRequests() {
 
 
                       {/* Pay */}
+
                       <td>
                         ₹{request.pay}
                       </td>
 
 
                       {/* Status */}
+
                       <td>
 
                         <span
@@ -328,6 +425,58 @@ function HospitalRequests() {
                         >
                           {request.status}
                         </span>
+
+                      </td>
+
+
+                      {/* Action */}
+
+                      <td>
+
+                        {request.status ===
+                          "OPEN" && (
+
+                          <button
+                            className="request-close-button"
+                            disabled={
+                              actionLoading ===
+                              request._id
+                            }
+                            onClick={() =>
+                              setConfirmation({
+                                type: "close",
+                                requestId:
+                                  request._id,
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+
+                        )}
+
+
+                        {request.status ===
+                          "CLOSED" && (
+
+                          <button
+                            className="request-reopen-button"
+                            disabled={
+                              actionLoading ===
+                              request._id
+                            }
+                            onClick={() =>
+                              setConfirmation({
+                                type: "reopen",
+                                requestId:
+                                  request._id,
+                              })
+                            }
+                          >
+                            Reopen
+                          </button>
+
+                        )}
 
                       </td>
 
@@ -342,6 +491,66 @@ function HospitalRequests() {
             </div>
 
           </section>
+
+        )}
+
+
+        {/* Confirmation modal */}
+
+        {confirmation && (
+
+          <ConfirmModal
+
+            title={
+              confirmation.type === "close"
+                ? "Close Staffing Request"
+                : "Reopen Staffing Request"
+            }
+
+            message={
+              confirmation.type === "close"
+                ? "Are you sure you want to close this staffing request? Professionals will no longer be able to apply."
+                : "Are you sure you want to reopen this staffing request?"
+            }
+
+            confirmText={
+              confirmation.type === "close"
+                ? "Close Request"
+                : "Reopen Request"
+            }
+
+            danger={
+              confirmation.type === "close"
+            }
+
+            onCancel={() =>
+              setConfirmation(null)
+            }
+
+            onConfirm={async () => {
+
+              if (
+                confirmation.type ===
+                "close"
+              ) {
+                await handleClose(
+                  confirmation.requestId
+                );
+              } else {
+                await handleReopen(
+                  confirmation.requestId
+                );
+              }
+
+              setConfirmation(null);
+            }}
+
+            loading={
+              actionLoading ===
+              confirmation.requestId
+            }
+
+          />
 
         )}
 

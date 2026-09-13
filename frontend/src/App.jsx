@@ -11,6 +11,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import HospitalDashboard from "./pages/hospital/HospitalDashboard";
 import HospitalRequests from "./pages/hospital/HospitalRequests";
 import CreateStaffingRequest from "./pages/hospital/CreateStaffingRequest";
+import HospitalApplications from "./pages/hospital/HospitalApplications";
+import HospitalAssignments from "./pages/hospital/HospitalAssignments";
+import HospitalProfile from "./pages/hospital/HospitalProfile";
+import Notifications from "./pages/Notifications";
 
 function App() {
 
@@ -54,6 +58,45 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+            path="/hospital/applications"
+            element={
+              <ProtectedRoute allowedRoles={["hospital"]}>
+                <HospitalApplications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hospital/assignments"
+            element={
+              <ProtectedRoute allowedRoles={["hospital"]}>
+                <HospitalAssignments />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/hospital/profile"
+            element={
+              <ProtectedRoute allowedRoles={["hospital"]}>
+                <HospitalProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "hospital",
+                  "professional",
+                ]}
+              >
+                <Notifications />
+              </ProtectedRoute>
+            }
+          />
 
         <Route
           path="/professional/dashboard"
