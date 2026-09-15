@@ -17,6 +17,7 @@ import HospitalProfile from "./pages/hospital/HospitalProfile";
 import Notifications from "./pages/Notifications";
 import ProfessionalDashboard from "./pages/professional/ProfessionalDashboard";
 import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
+import ProfessionalRequests from "./pages/professional/ProfessionalRequests";
 
 function App() {
 
@@ -116,7 +117,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/professional/requests"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalRequests />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/admin/dashboard"
