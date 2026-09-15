@@ -15,6 +15,8 @@ import HospitalApplications from "./pages/hospital/HospitalApplications";
 import HospitalAssignments from "./pages/hospital/HospitalAssignments";
 import HospitalProfile from "./pages/hospital/HospitalProfile";
 import Notifications from "./pages/Notifications";
+import ProfessionalDashboard from "./pages/professional/ProfessionalDashboard";
+import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 
 function App() {
 
@@ -102,7 +104,15 @@ function App() {
           path="/professional/dashboard"
           element={
             <ProtectedRoute allowedRoles={["professional"]}>
-              <h1>Professional Dashboard</h1>
+              <ProfessionalDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/professional/profile"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalProfile />
             </ProtectedRoute>
           }
         />

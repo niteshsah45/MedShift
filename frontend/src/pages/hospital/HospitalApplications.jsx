@@ -1,11 +1,16 @@
+
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import ConfirmModal from "../../components/ConfirmModal";
-
 import api from "../../services/api";
 
 function HospitalApplications() {
+  const [searchParams] = useSearchParams();
+
+  const notificationApplicationId =
+    searchParams.get("applicationId");
+
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] =
     useState("");
@@ -25,11 +30,56 @@ function HospitalApplications() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  /*
+   * Find which staffing request contains
+   * the application from the notification.
+   *
+   * The current backend endpoint requires
+   * requestId, so we check the hospital's
+   * requests until we find the application.
+   */
+  const findApplicationRequest = async (
+    requestData,
+    applicationId
+  ) => {
+    if (!applicationId) {
+      return null;
+    }
+
+    for (const request of requestData) {
+      try {
+        const response = await api.get(
+          `/applications/requests/${request._id}/applications`
+        );
+
+        const applicationData = Array.isArray(
+          response.data.data
+        )
+          ? response.data.data
+          : [];
+
+        const foundApplication =
+          applicationData.find(
+            (application) =>
+              application._id === applicationId
+          );
+
+        if (foundApplication) {
+          return request._id;
+        }
+      } catch (error) {
+        console.error(
+          `Failed to check applications for request ${request._id}:`,
+          error
+        );
+      }
+    }
+
+    return null;
+  };
 
 
   // Get hospital requests
-
-
   const fetchRequests = async () => {
     try {
       setLoadingRequests(true);
@@ -50,10 +100,30 @@ function HospitalApplications() {
 
       setRequests(requestData);
 
-      // Automatically select first request
-      if (requestData.length > 0) {
-        setSelectedRequest(requestData[0]._id);
+      if (requestData.length === 0) {
+        setSelectedRequest("");
+        return;
       }
+
+      /*
+       * If page was opened from a notification,
+       * find the request containing that application.
+       */
+      if (notificationApplicationId) {
+        const notificationRequestId =
+          await findApplicationRequest(
+            requestData,
+            notificationApplicationId
+          );
+
+        if (notificationRequestId) {
+          setSelectedRequest(notificationRequestId);
+          return;
+        }
+      }
+
+      // Normal page visit → select first request
+      setSelectedRequest(requestData[0]._id);
 
     } catch (error) {
       console.error(error);
@@ -68,10 +138,7 @@ function HospitalApplications() {
   };
 
 
-
   // Get applications for request
-
-
   const fetchApplications = async (requestId) => {
     if (!requestId) {
       setApplications([]);
@@ -125,10 +192,51 @@ function HospitalApplications() {
   }, [selectedRequest]);
 
 
+  /*
+   * Once the applications are loaded,
+   * scroll to the application opened
+   * from the notification.
+   */
+  useEffect(() => {
+    if (
+      !notificationApplicationId ||
+      !applications.length ||
+      loadingApplications
+    ) {
+      return;
+    }
+
+    const applicationExists =
+      applications.some(
+        (application) =>
+          application._id ===
+          notificationApplicationId
+      );
+
+    if (!applicationExists) {
+      return;
+    }
+
+    setTimeout(() => {
+      const element = document.getElementById(
+        `application-${notificationApplicationId}`
+      );
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 100);
+  }, [
+    applications,
+    loadingApplications,
+    notificationApplicationId,
+  ]);
+
 
   // Accept application
-
-
   const handleAccept = async (applicationId) => {
     try {
       setActionLoading(applicationId);
@@ -143,11 +251,9 @@ function HospitalApplications() {
         "Application accepted successfully."
       );
 
-      // Refresh applications
       await fetchApplications(selectedRequest);
 
-      // Refresh requests because
-      // positionsFilled may have changed
+      // Refresh requests because positionsFilled may have changed
       await fetchRequests();
 
     } catch (error) {
@@ -163,10 +269,7 @@ function HospitalApplications() {
   };
 
 
-
   // Reject application
-
-
   const handleReject = async (applicationId) => {
     try {
       setActionLoading(applicationId);
@@ -196,30 +299,15 @@ function HospitalApplications() {
   };
 
 
-
   const getSelectedRequest = () => {
     return requests.find(
-      (request) => request._id === selectedRequest
+      (request) =>
+        request._id === selectedRequest
     );
   };
 
 
   const getProfessional = (application) => {
-    /*
-     * Depending on your backend population,
-     * professionalId may be either:
-     *
-     * professionalId: "123"
-     *
-     * OR
-     *
-     * professionalId: {
-     *   name: "...",
-     *   role: "...",
-     *   ...
-     * }
-     */
-
     if (
       application.professionalId &&
       typeof application.professionalId === "object"
@@ -235,22 +323,16 @@ function HospitalApplications() {
     getSelectedRequest();
 
 
-  // --------------------------------
-  // UI
-  // --------------------------------
-
   return (
     <div className="dashboard">
 
       {/* Sidebar */}
-
       <aside className="sidebar">
 
         <div className="sidebar-logo">
           <h2>MedShift</h2>
           <span>Hospital Portal</span>
         </div>
-
 
         <nav className="sidebar-nav">
 
@@ -302,7 +384,6 @@ function HospitalApplications() {
 
 
       {/* Main */}
-
       <main className="dashboard-content">
 
         <header className="dashboard-header">
@@ -318,8 +399,6 @@ function HospitalApplications() {
 
         </header>
 
-
-        {/* Error */}
 
         {error && (
           <div className="dashboard-error">
@@ -338,8 +417,6 @@ function HospitalApplications() {
           </div>
         )}
 
-
-        {/* Success */}
 
         {success && (
           <div className="application-success">
@@ -386,7 +463,6 @@ function HospitalApplications() {
 
           <>
             {/* Request selector */}
-
             <section className="application-request-selector">
 
               <div>
@@ -461,12 +537,12 @@ function HospitalApplications() {
 
 
             {/* Applications */}
-
             <section className="dashboard-section">
 
               <div className="section-header">
 
                 <div>
+
                   <h2>
                     Applications
                   </h2>
@@ -477,6 +553,7 @@ function HospitalApplications() {
                       ? "s"
                       : ""}
                   </p>
+
                 </div>
 
               </div>
@@ -521,14 +598,28 @@ function HospitalApplications() {
                           application
                         );
 
+                      const isNotificationApplication =
+                        application._id ===
+                        notificationApplicationId;
+
                       return (
                         <div
-                          className="application-card"
+                          id={`application-${application._id}`}
+                          className={`application-card ${
+                            isNotificationApplication
+                              ? "application-card-highlight"
+                              : ""
+                          }`}
                           key={application._id}
                         >
 
-                          {/* Professional information */}
+                          {isNotificationApplication && (
+                            <div className="notification-focus-label">
+                              Opened from notification
+                            </div>
+                          )}
 
+                          {/* Professional information */}
                           <div className="application-info">
 
                             <h3>
@@ -592,7 +683,6 @@ function HospitalApplications() {
 
 
                           {/* Application status/actions */}
-
                           <div className="application-actions">
 
                             <span
@@ -615,10 +705,11 @@ function HospitalApplications() {
                                   }
                                   onClick={() =>
                                     setConfirmation({
-                                        type: "reject",
-                                        applicationId: application._id,
+                                      type: "reject",
+                                      applicationId:
+                                        application._id,
                                     })
-                                }
+                                  }
                                 >
                                   {actionLoading ===
                                   application._id
@@ -635,10 +726,11 @@ function HospitalApplications() {
                                   }
                                   onClick={() =>
                                     setConfirmation({
-                                        type: "accept",
-                                        applicationId: application._id,
+                                      type: "accept",
+                                      applicationId:
+                                        application._id,
                                     })
-                                }
+                                  }
                                 >
                                   {actionLoading ===
                                   application._id
@@ -667,56 +759,60 @@ function HospitalApplications() {
 
         )}
 
+
       </main>
+
+
+      {/* Confirmation */}
       {confirmation && (
         <ConfirmModal
-            title={
+          title={
             confirmation.type === "accept"
-                ? "Accept Application"
-                : "Reject Application"
-            }
+              ? "Accept Application"
+              : "Reject Application"
+          }
 
-            message={
+          message={
             confirmation.type === "accept"
-                ? "Are you sure you want to accept this professional? This will create an active assignment."
-                : "Are you sure you want to reject this application?"
-            }
+              ? "Are you sure you want to accept this professional? This will create an active assignment."
+              : "Are you sure you want to reject this application?"
+          }
 
-            confirmText={
+          confirmText={
             confirmation.type === "accept"
-                ? "Accept"
-                : "Reject"
-            }
+              ? "Accept"
+              : "Reject"
+          }
 
-            danger={
+          danger={
             confirmation.type === "reject"
-            }
+          }
 
-            onCancel={() => {
+          onCancel={() => {
             setConfirmation(null);
-            }}
+          }}
 
-            onConfirm={async () => {
+          onConfirm={async () => {
 
             if (confirmation.type === "accept") {
-                await handleAccept(
+              await handleAccept(
                 confirmation.applicationId
-                );
+              );
             } else {
-                await handleReject(
+              await handleReject(
                 confirmation.applicationId
-                );
+              );
             }
 
             setConfirmation(null);
-            }}
+          }}
 
-            loading={
+          loading={
             actionLoading ===
             confirmation.applicationId
-            }
+          }
         />
-        )}
+      )}
 
     </div>
   );

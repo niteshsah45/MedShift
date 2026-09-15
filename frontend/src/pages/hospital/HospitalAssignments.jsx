@@ -1,18 +1,36 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import ConfirmModal from "../../components/ConfirmModal";
+import {
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 
+import ConfirmModal from "../../components/ConfirmModal";
 import api from "../../services/api";
 
 function HospitalAssignments() {
-  const [assignments, setAssignments] = useState([]);
+  const [searchParams] = useSearchParams();
 
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
-  const [confirmation, setConfirmation] = useState(null);
+  const notificationAssignmentId =
+    searchParams.get("assignmentId");
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [assignments, setAssignments] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [actionLoading, setActionLoading] =
+    useState(null);
+
+  const [confirmation, setConfirmation] =
+    useState(null);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
 
   const fetchAssignments = async () => {
     try {
@@ -28,11 +46,10 @@ function HospitalAssignments() {
         response.data
       );
 
-      const assignmentData = Array.isArray(
-        response.data.data
-      )
-        ? response.data.data
-        : [];
+      const assignmentData =
+        Array.isArray(response.data.data)
+          ? response.data.data
+          : [];
 
       setAssignments(assignmentData);
 
@@ -46,6 +63,7 @@ function HospitalAssignments() {
         error.response?.data?.message ||
           "Failed to load assignments."
       );
+
     } finally {
       setLoading(false);
     }
@@ -57,7 +75,53 @@ function HospitalAssignments() {
   }, []);
 
 
-  const handleComplete = async (assignmentId) => {
+  /*
+   * When opened from a notification,
+   * automatically scroll to that assignment.
+   */
+  useEffect(() => {
+    if (
+      !notificationAssignmentId ||
+      !assignments.length ||
+      loading
+    ) {
+      return;
+    }
+
+    const assignmentExists =
+      assignments.some(
+        (assignment) =>
+          assignment._id ===
+          notificationAssignmentId
+      );
+
+    if (!assignmentExists) {
+      return;
+    }
+
+    setTimeout(() => {
+      const element = document.getElementById(
+        `assignment-${notificationAssignmentId}`
+      );
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 100);
+
+  }, [
+    assignments,
+    loading,
+    notificationAssignmentId,
+  ]);
+
+
+  const handleComplete = async (
+    assignmentId
+  ) => {
     try {
       setActionLoading(assignmentId);
       setError("");
@@ -80,13 +144,16 @@ function HospitalAssignments() {
         error.response?.data?.message ||
           "Failed to complete assignment."
       );
+
     } finally {
       setActionLoading(null);
     }
   };
 
 
-  const handleCancel = async (assignmentId) => {
+  const handleCancel = async (
+    assignmentId
+  ) => {
     try {
       setActionLoading(assignmentId);
       setError("");
@@ -109,6 +176,7 @@ function HospitalAssignments() {
         error.response?.data?.message ||
           "Failed to cancel assignment."
       );
+
     } finally {
       setActionLoading(null);
     }
@@ -158,14 +226,12 @@ function HospitalAssignments() {
     <div className="dashboard">
 
       {/* Sidebar */}
-
       <aside className="sidebar">
 
         <div className="sidebar-logo">
           <h2>MedShift</h2>
           <span>Hospital Portal</span>
         </div>
-
 
         <nav className="sidebar-nav">
 
@@ -217,31 +283,33 @@ function HospitalAssignments() {
 
 
       {/* Main */}
-
       <main className="dashboard-content">
 
         <header className="dashboard-header">
 
           <div>
+
             <h1>Assignments</h1>
 
             <p>
               Manage professionals assigned to
               your hospital shifts.
             </p>
+
           </div>
 
         </header>
 
 
         {/* Error */}
-
         {error && (
           <div className="dashboard-error">
 
             <span>{error}</span>
 
-            <button onClick={fetchAssignments}>
+            <button
+              onClick={fetchAssignments}
+            >
               Try Again
             </button>
 
@@ -250,7 +318,6 @@ function HospitalAssignments() {
 
 
         {/* Success */}
-
         {success && (
           <div className="assignment-success">
             {success}
@@ -274,7 +341,9 @@ function HospitalAssignments() {
                 📅
               </div>
 
-              <h3>No assignments yet</h3>
+              <h3>
+                No assignments yet
+              </h3>
 
               <p>
                 Accepted applications will appear
@@ -292,6 +361,7 @@ function HospitalAssignments() {
             <div className="section-header">
 
               <div>
+
                 <h2>
                   Assigned Professionals
                 </h2>
@@ -302,6 +372,7 @@ function HospitalAssignments() {
                     ? "s"
                     : ""}
                 </p>
+
               </div>
 
             </div>
@@ -312,16 +383,33 @@ function HospitalAssignments() {
               {assignments.map((assignment) => {
 
                 const professional =
-                  getProfessional(assignment);
+                  getProfessional(
+                    assignment
+                  );
+
+                const isNotificationAssignment =
+                  assignment._id ===
+                  notificationAssignmentId;
 
                 return (
                   <div
-                    className="assignment-card"
+                    id={`assignment-${assignment._id}`}
+                    className={`assignment-card ${
+                      isNotificationAssignment
+                        ? "assignment-card-highlight"
+                        : ""
+                    }`}
                     key={assignment._id}
                   >
 
-                    {/* Professional */}
+                    {isNotificationAssignment && (
+                      <div className="notification-focus-label">
+                        Opened from notification
+                      </div>
+                    )}
 
+
+                    {/* Professional */}
                     <div className="assignment-professional">
 
                       <h3>
@@ -339,17 +427,18 @@ function HospitalAssignments() {
 
                       {professional?.experienceYears !==
                         undefined && (
+
                         <small>
                           {professional.experienceYears}{" "}
                           years experience
                         </small>
+
                       )}
 
                     </div>
 
 
                     {/* Shift */}
-
                     <div className="assignment-shift">
 
                       <strong>
@@ -376,7 +465,6 @@ function HospitalAssignments() {
 
 
                     {/* Location */}
-
                     <div className="assignment-location">
 
                       <strong>
@@ -392,7 +480,6 @@ function HospitalAssignments() {
 
 
                     {/* Actions */}
-
                     <div className="assignment-actions">
 
                       <span
@@ -414,11 +501,12 @@ function HospitalAssignments() {
                               assignment._id
                             }
                             onClick={() =>
-                                setConfirmation({
-                                    type: "cancel",
-                                    assignmentId: assignment._id,
-                                })
-                             }
+                              setConfirmation({
+                                type: "cancel",
+                                assignmentId:
+                                  assignment._id,
+                              })
+                            }
                           >
                             {actionLoading ===
                             assignment._id
@@ -434,10 +522,11 @@ function HospitalAssignments() {
                               assignment._id
                             }
                             onClick={() =>
-                                setConfirmation({
-                                    type: "complete",
-                                    assignmentId: assignment._id,
-                                })
+                              setConfirmation({
+                                type: "complete",
+                                assignmentId:
+                                  assignment._id,
+                              })
                             }
                           >
                             {actionLoading ===
@@ -454,7 +543,6 @@ function HospitalAssignments() {
 
                   </div>
                 );
-
               })}
 
             </div>
@@ -463,57 +551,65 @@ function HospitalAssignments() {
 
         )}
 
+
       </main>
 
+
+      {/* Confirmation */}
       {confirmation && (
         <ConfirmModal
-            title={
-            confirmation.type === "complete"
-                ? "Complete Assignment"
-                : "Cancel Assignment"
-            }
 
-            message={
+          title={
             confirmation.type === "complete"
-                ? "Are you sure this shift has been completed?"
-                : "Are you sure you want to cancel this assignment?"
-            }
+              ? "Complete Assignment"
+              : "Cancel Assignment"
+          }
 
-            confirmText={
+          message={
             confirmation.type === "complete"
-                ? "Complete"
-                : "Cancel Assignment"
-            }
+              ? "Are you sure this shift has been completed?"
+              : "Are you sure you want to cancel this assignment?"
+          }
 
-            danger={
+          confirmText={
+            confirmation.type === "complete"
+              ? "Complete"
+              : "Cancel Assignment"
+          }
+
+          danger={
             confirmation.type === "cancel"
-            }
+          }
 
-            onCancel={() => {
+          onCancel={() => {
             setConfirmation(null);
-            }}
+          }}
 
-            onConfirm={async () => {
+          onConfirm={async () => {
 
-            if (confirmation.type === "complete") {
-                await handleComplete(
+            if (
+              confirmation.type ===
+              "complete"
+            ) {
+              await handleComplete(
                 confirmation.assignmentId
-                );
+              );
             } else {
-                await handleCancel(
+              await handleCancel(
                 confirmation.assignmentId
-                );
+              );
             }
 
             setConfirmation(null);
-            }}
+          }}
 
-            loading={
+          loading={
             actionLoading ===
             confirmation.assignmentId
-            }
+          }
+
         />
-    )}
+      )}
 
     </div>
   );
