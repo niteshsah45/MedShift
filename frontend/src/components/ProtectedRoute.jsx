@@ -14,6 +14,11 @@ function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/login" replace />;
   }
 
+   if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  console.log("Current user:", user);
+
   // JWT exists but role is not allowed
   if (
     allowedRoles &&

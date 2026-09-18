@@ -31,7 +31,7 @@ router.post(
 router.get(
     "/professional/pending",
     verifyToken,
-    allowRoles("admin"),
+    allowRoles("professional","admin"),
     getPendingProfessionalVerifications
 );
 
@@ -56,7 +56,7 @@ router.patch(
 router.get(
     "/hospital/pending",
     verifyToken,
-    allowRoles("admin"),
+    allowRoles("hospital","admin"),
     getPendingHospitalVerifications
 );
 

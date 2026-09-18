@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Notifications() {
   const navigate = useNavigate();
+  const { user,logout } = useAuth();
 
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,8 +97,9 @@ function Notifications() {
   /*
    * Handles clicking a notification.
    *
-   * relatedId tells us which record
-   * the notification belongs to.
+   * The destination depends on:
+   * 1. Notification type
+   * 2. Current user's role
    */
   const handleNotificationClick = async (
     notification
@@ -118,9 +121,11 @@ function Notifications() {
        * relatedId = application._id
        */
       case "NEW_APPLICATION":
-        navigate(
-          `/hospital/applications?applicationId=${notification.relatedId}`
-        );
+        if (user?.role === "hospital") {
+          navigate(
+            `/hospital/applications?applicationId=${notification.relatedId}`
+          );
+        }
         break;
 
       /*
@@ -130,40 +135,60 @@ function Notifications() {
        * relatedId = assignment._id
        */
       case "APPLICATION_ACCEPTED":
-        navigate(
-          `/hospital/assignments?assignmentId=${notification.relatedId}`
-        );
+        if (user?.role === "professional") {
+          navigate(
+            `/professional/assignments?assignmentId=${notification.relatedId}`
+          );
+        }
         break;
 
       /*
+       * Professional receives this when
+       * hospital rejects the application.
+       *
        * relatedId = application._id
        */
       case "APPLICATION_REJECTED":
-        navigate(
-          `/hospital/applications?applicationId=${notification.relatedId}`
-        );
+        if (user?.role === "professional") {
+          navigate(
+            `/professional/applications`
+          );
+        }
         break;
 
       /*
+       * Assignment notifications can be
+       * received by both roles.
+       *
        * relatedId = assignment._id
        */
       case "ASSIGNMENT_COMPLETED":
       case "ASSIGNMENT_CANCELLED":
       case "SHIFT_REMINDER":
-        navigate(
-          `/hospital/assignments?assignmentId=${notification.relatedId}`
-        );
+        if (user?.role === "professional") {
+          navigate(
+            `/professional/assignments?assignmentId=${notification.relatedId}`
+          );
+        } else if (user?.role === "hospital") {
+          navigate(
+            `/hospital/assignments?assignmentId=${notification.relatedId}`
+          );
+        }
         break;
 
       /*
-       * Current backend stores professional._id
-       * for verification notifications.
+       * Verification notifications are
+       * currently sent to professionals.
        *
-       * For now, take the user to Profile.
+       * relatedId = professional._id
        */
       case "VERIFICATION_APPROVED":
       case "VERIFICATION_REJECTED":
-        navigate("/hospital/profile");
+        if (user?.role === "professional") {
+          navigate("/professional/verification");
+        } else if (user?.role === "hospital") {
+          navigate("/hospital/profile");
+        }
         break;
 
       default:
@@ -215,6 +240,15 @@ function Notifications() {
     (notification) => !notification.isRead
   ).length;
 
+  /*
+   * Decide which portal is being used.
+   */
+  const isProfessional =
+    user?.role === "professional";
+
+  const isHospital =
+    user?.role === "hospital";
+
   if (loading) {
     return (
       <div className="dashboard">
@@ -222,7 +256,12 @@ function Notifications() {
         <aside className="sidebar">
           <div className="sidebar-logo">
             <h2>MedShift</h2>
-            <span>Hospital Portal</span>
+
+            <span>
+              {isProfessional
+                ? "Professional Portal"
+                : "Hospital Portal"}
+            </span>
           </div>
         </aside>
 
@@ -239,64 +278,143 @@ function Notifications() {
   return (
     <div className="dashboard">
 
-      {/* Sidebar */}
+      {/* =========================
+          SIDEBAR
+      ========================= */}
+
       <aside className="sidebar">
+  <div className="sidebar-logo">
+    <h2>MedShift</h2>
 
-        <div className="sidebar-logo">
-          <h2>MedShift</h2>
-          <span>Hospital Portal</span>
-        </div>
+    <span>
+      {user?.role === "professional"
+        ? "Professional Portal"
+        : "Hospital Portal"}
+    </span>
+  </div>
 
-        <nav className="sidebar-nav">
+  <nav className="sidebar-nav">
 
-          <Link
-            to="/hospital/dashboard"
-            className="nav-link"
-          >
-            Dashboard
-          </Link>
+    {/* Professional Navigation */}
+    {user?.role === "professional" && (
+      <>
+        <Link
+          to="/professional/dashboard"
+          className="nav-link"
+        >
+          Dashboard
+        </Link>
 
-          <Link
-            to="/hospital/requests"
-            className="nav-link"
-          >
-            My Requests
-          </Link>
+        <Link
+          to="/professional/requests"
+          className="nav-link"
+        >
+          Find Shifts
+        </Link>
 
-          <Link
-            to="/hospital/applications"
-            className="nav-link"
-          >
-            Applications
-          </Link>
+        <Link
+          to="/professional/applications"
+          className="nav-link"
+        >
+          My Applications
+        </Link>
 
-          <Link
-            to="/hospital/assignments"
-            className="nav-link"
-          >
-            Assignments
-          </Link>
+        <Link
+          to="/professional/assignments"
+          className="nav-link"
+        >
+          My Assignments
+        </Link>
 
-          <Link
-            to="/hospital/profile"
-            className="nav-link"
-          >
-            Profile
-          </Link>
+        <Link
+          to="/notifications"
+          className="nav-link active"
+        >
+          Notifications
+        </Link>
 
-          <Link
-            to="/notifications"
-            className="nav-link active"
-          >
-            Notifications
-          </Link>
+        <Link
+          to="/professional/profile"
+          className="nav-link"
+        >
+          Profile
+        </Link>
 
-        </nav>
+        <Link
+          to="/professional/verification"
+          className="nav-link"
+        >
+          Verification
+        </Link>
+      </>
+    )}
 
-      </aside>
+    {/* Hospital Navigation */}
+    {user?.role === "hospital" && (
+      <>
+        <Link
+          to="/hospital/dashboard"
+          className="nav-link"
+        >
+          Dashboard
+        </Link>
+
+        <Link
+          to="/hospital/requests"
+          className="nav-link"
+        >
+          My Requests
+        </Link>
+
+        <Link
+          to="/hospital/applications"
+          className="nav-link"
+        >
+          Applications
+        </Link>
+
+        <Link
+          to="/hospital/assignments"
+          className="nav-link"
+        >
+          Assignments
+        </Link>
+
+        <Link
+          to="/hospital/profile"
+          className="nav-link"
+        >
+          Profile
+        </Link>
+
+        <Link
+          to="/notifications"
+          className="nav-link active"
+        >
+          Notifications
+        </Link>
+      </>
+    )}
+
+  </nav>
+      <div className="sidebar-bottom">
+      <button
+        className="logout-button"
+        onClick={() => {
+          logout();
+          navigate("/login");
+        }}
+      >
+        Logout
+      </button>
+    </div>
+</aside>
 
 
-      {/* Main */}
+      {/* =========================
+          MAIN CONTENT
+      ========================= */}
+
       <main className="dashboard-content">
 
         <div className="notifications-header">
@@ -325,6 +443,8 @@ function Notifications() {
         </div>
 
 
+        {/* UNREAD COUNT */}
+
         {unreadCount > 0 && (
           <div className="notification-count">
             {unreadCount} unread notification
@@ -333,12 +453,16 @@ function Notifications() {
         )}
 
 
+        {/* ERROR */}
+
         {error && (
           <div className="form-error">
             {error}
           </div>
         )}
 
+
+        {/* NOTIFICATIONS */}
 
         <section className="notifications-card">
 

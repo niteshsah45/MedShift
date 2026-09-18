@@ -18,6 +18,11 @@ import Notifications from "./pages/Notifications";
 import ProfessionalDashboard from "./pages/professional/ProfessionalDashboard";
 import ProfessionalProfile from "./pages/professional/ProfessionalProfile";
 import ProfessionalRequests from "./pages/professional/ProfessionalRequests";
+import ProfessionalApplications from "./pages/professional/ProfessionalApplications";
+import ProfessionalAssignments from "./pages/professional/ProfessionalAssignments";
+import ProfessionalVerification from "./pages/professional/ProfessionalVerification";
+import ProfessionalOnboarding from "./pages/professional/ProfessionalOnboarding";
+import HospitalOnboarding from "./pages/hospital/HospitalOnboarding";
 
 function App() {
 
@@ -41,6 +46,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["hospital"]}>
               <HospitalDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/hospital/onboarding"
+          element={
+            <ProtectedRoute allowedRoles={["hospital"]}>
+              <HospitalOnboarding />
             </ProtectedRoute>
           }
         />
@@ -110,6 +124,14 @@ function App() {
           }
         />
         <Route
+          path="/professional/onboarding"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalOnboarding />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/professional/profile"
           element={
             <ProtectedRoute allowedRoles={["professional"]}>
@@ -122,6 +144,31 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["professional"]}>
               <ProfessionalRequests />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/professional/applications"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalApplications />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/professional/assignments"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalAssignments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/professional/verification"
+          element={
+            <ProtectedRoute allowedRoles={["professional"]}>
+              <ProfessionalVerification />
             </ProtectedRoute>
           }
         />

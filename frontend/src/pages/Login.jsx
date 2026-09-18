@@ -39,19 +39,43 @@ function Login() {
 
     const jwtToken = response.data.data.token;
 
+    // Store token + fetch current user
     const user = await login(jwtToken);
 
-    // Redirect based on role
-    if (user.role === "hospital") {
-      navigate("/hospital/dashboard");
-    } else if (user.role === "professional") {
-      navigate("/professional/dashboard");
+    if (user.role === "professional") {
+      try {
+        await api.get("/professionals/me");
+
+        // Profile exists
+        navigate("/professional/dashboard");
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // Profile doesn't exist yet
+          navigate("/professional/onboarding");
+        } else {
+          throw error;
+        }
+      }
+    } else if (user.role === "hospital") {
+      try {
+        await api.get("/hospitals/me");
+
+        // Profile exists
+        navigate("/hospital/dashboard");
+      } catch (error) {
+        if (error.response?.status === 404) {
+          // Profile doesn't exist yet
+          navigate("/hospital/onboarding");
+        } else {
+          throw error;
+        }
+      }
     } else if (user.role === "admin") {
       navigate("/admin/dashboard");
     }
 
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
 
     setMessage(
       error.response?.data?.message ||
