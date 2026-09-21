@@ -23,6 +23,10 @@ import ProfessionalAssignments from "./pages/professional/ProfessionalAssignment
 import ProfessionalVerification from "./pages/professional/ProfessionalVerification";
 import ProfessionalOnboarding from "./pages/professional/ProfessionalOnboarding";
 import HospitalOnboarding from "./pages/hospital/HospitalOnboarding";
+import AdminDashboard from "./pages/admin/AdminDashbaord";
+import AdminProfessionalVerification from "./pages/admin/AdminProfessionalVerification"
+import AdminHospitalVerification from "./pages/admin/AdminHospitalVerification"
+
 
 function App() {
 
@@ -177,7 +181,25 @@ function App() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <h1>Admin Dashboard</h1>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/professional-verification"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminProfessionalVerification />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/hospital-verification"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminHospitalVerification />
             </ProtectedRoute>
           }
         />

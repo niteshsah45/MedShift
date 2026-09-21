@@ -251,7 +251,10 @@ export const approveHospitalVerificationService = async (hospitalId) => {
     return hospital;
 };
 
-export const rejectHospitalVerificationService = async (hospitalId) => {
+export const rejectHospitalVerificationService = async (
+    hospitalId,
+    reason
+) => {
 
     const hospital = await Hospital.findById(hospitalId);
 
@@ -271,8 +274,19 @@ export const rejectHospitalVerificationService = async (hospitalId) => {
         userId: hospital.userId,
         type: "VERIFICATION_REJECTED",
         title: "Hospital Verification Rejected",
-        message: "Your hospital verification was rejected."
+        message: `Your hospital verification was rejected. Reason: ${reason}`,
     });
 
     return hospital;
+};
+
+export const getMyProfessionalVerificationsService = async (
+    professionalId
+) => {
+
+    return await VerificationDocument.find({
+        professionalId
+    }).sort({
+        createdAt: -1
+    });
 };

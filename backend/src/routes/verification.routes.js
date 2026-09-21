@@ -6,6 +6,7 @@ import { allowRoles } from "../middlewares/role.middleware.js";
 
 import {
     uploadProfessionalVerificationDocument,
+    getMyProfessionalVerifications,
     getPendingProfessionalVerifications,
     approveProfessionalVerification,
     rejectProfessionalVerification,
@@ -18,6 +19,8 @@ import {
 const router = express.Router();
 
 
+//professional
+
 // Professional uploads verification document
 router.post(
     "/professional/documents",
@@ -27,11 +30,22 @@ router.post(
     uploadProfessionalVerificationDocument
 );
 
-// Admin gets pending professional verifications
+// Professional sees ONLY their own verification documents
+router.get(
+    "/professional/my",
+    verifyToken,
+    allowRoles("professional"),
+    getMyProfessionalVerifications
+);
+
+
+//admin verification
+
+// Admin sees ALL pending professional documents
 router.get(
     "/professional/pending",
     verifyToken,
-    allowRoles("professional","admin"),
+    allowRoles("admin"),
     getPendingProfessionalVerifications
 );
 
@@ -51,12 +65,13 @@ router.patch(
     rejectProfessionalVerification
 );
 
+// ADMIN - HOSPITAL VERIFICATION
 
-// Admin gets pending hospital verifications
+// Admin sees ALL pending hospitals
 router.get(
     "/hospital/pending",
     verifyToken,
-    allowRoles("hospital","admin"),
+    allowRoles("admin"),
     getPendingHospitalVerifications
 );
 
@@ -75,6 +90,5 @@ router.patch(
     allowRoles("admin"),
     rejectHospitalVerification
 );
-
 
 export default router;

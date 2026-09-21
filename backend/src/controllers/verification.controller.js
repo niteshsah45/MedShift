@@ -8,7 +8,8 @@ import {
     rejectProfessionalVerificationService,
     getPendingHospitalsVerificationService,
     approveHospitalVerificationService,
-    rejectHospitalVerificationService       
+    rejectHospitalVerificationService  ,
+    getMyProfessionalVerificationsService     
 } from "../services/verification.service.js";
 
 
@@ -253,5 +254,50 @@ export const rejectHospitalVerification = async (req, res) => {
             success: false,
             message: error.message
         });
+    }
+};
+
+// Professional: get own verification documents
+export const getMyProfessionalVerifications = async (req, res) => {
+
+    try {
+
+        const professional =
+            await Professional.findOne({
+                userId: req.user.id
+            });
+
+        if (!professional) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Professional profile not found"
+            });
+
+        }
+
+        const documents =
+            await getMyProfessionalVerificationsService(
+                professional._id
+            );
+
+        res.status(200).json({
+
+            success: true,
+
+            data: documents
+
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+
+            success: false,
+
+            message: error.message
+
+        });
+
     }
 };

@@ -8,6 +8,7 @@ import assignmentRoutes from "./routes/assignment.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import verificationRoutes from "./routes/verification.routes.js";
 import cors from "cors";
+import adminRoutes from "./routes/admin.routes.js"
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ app.use("/api/v1/applications",applicationRoutes);
 app.use("/api/v1/assignments",assignmentRoutes);
 app.use("/api/v1/notifications",notificationRoutes);
 app.use("/api/v1/verifications",verificationRoutes);
+app.use("api/v1/admin",adminRoutes);
 
 
 app.get("/", (req,res)=>{
