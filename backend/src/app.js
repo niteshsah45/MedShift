@@ -22,7 +22,7 @@ app.use("/api/v1/applications",applicationRoutes);
 app.use("/api/v1/assignments",assignmentRoutes);
 app.use("/api/v1/notifications",notificationRoutes);
 app.use("/api/v1/verifications",verificationRoutes);
-app.use("api/v1/admin",adminRoutes);
+app.use("/api/v1/admin",adminRoutes);
 
 
 app.get("/", (req,res)=>{
