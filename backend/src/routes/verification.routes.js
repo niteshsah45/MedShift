@@ -54,6 +54,7 @@ router.patch(
     "/professional/:documentId/approve",
     verifyToken,
     allowRoles("admin"),
+    validate(verificationDocumentIdSchema, "params"),
     approveProfessionalVerification
 );
 

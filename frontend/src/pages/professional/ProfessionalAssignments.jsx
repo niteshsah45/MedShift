@@ -269,26 +269,6 @@ function ProfessionalAssignments() {
       setSelectedAssignment(null);
     }
   };
-
-  /* =========================================
-     Complete
-  ========================================= */
-
-  const handleCompleteClick = (assignment) => {
-    setConfirmation({
-      type: "complete",
-      assignment,
-      title: "Complete this shift?",
-      message: `Mark your ${getRequest(
-        assignment
-      ).department || "assigned"} shift at ${
-        getHospital(assignment).hospitalName ||
-        "the hospital"
-      } as completed.`,
-      confirmText: "Complete Shift",
-    });
-  };
-
   /* =========================================
      Cancel
   ========================================= */
@@ -808,17 +788,6 @@ function ProfessionalAssignments() {
                           "ACTIVE" && (
                           <>
                             <button
-                              className="primary-button"
-                              onClick={() =>
-                                handleCompleteClick(
-                                  assignment
-                                )
-                              }
-                            >
-                              Complete
-                            </button>
-
-                            <button
                               className="assignment-cancel-button"
                               onClick={() =>
                                 handleCancelClick(
@@ -1025,18 +994,6 @@ function ProfessionalAssignments() {
                 >
                   Close
                 </button>
-
-                <button
-                  className="primary-button"
-                  onClick={() =>
-                    handleCompleteClick(
-                      selectedAssignment
-                    )
-                  }
-                >
-                  Complete Shift
-                </button>
-
                 <button
                   className="assignment-cancel-button"
                   onClick={() =>

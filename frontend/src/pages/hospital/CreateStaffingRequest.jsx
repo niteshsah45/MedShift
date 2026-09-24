@@ -33,23 +33,27 @@ function CreateStaffingRequest() {
 
   // Only validates the form and opens confirmation
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setError("");
-    setSuccess("");
+  setError("");
+  setSuccess("");
 
-    // Basic frontend validation
-    if (
-      new Date(formData.startAt) >=
-      new Date(formData.endAt)
-    ) {
-      setError("End time must be after start time.");
-      return;
-    }
+  const start = new Date(formData.startAt);
+  const end = new Date(formData.endAt);
+  const now = new Date();
 
-    // Do NOT create request yet
-    setShowConfirmation(true);
-  };
+  if (start <= now) {
+    setError("Start time must be in the future.");
+    return;
+  }
+
+  if (end <= start) {
+    setError("End time must be after start time.");
+    return;
+  }
+
+  setShowConfirmation(true);
+};
 
   // Actually creates the staffing request
   const createStaffingRequest = async () => {

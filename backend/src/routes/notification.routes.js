@@ -30,7 +30,6 @@ router.patch(
 router.patch(
     "/read-all",
     verifyToken,
-    validate(notificationIdSchema,"params"),
     markAllNotificationsAsRead
 );
 
