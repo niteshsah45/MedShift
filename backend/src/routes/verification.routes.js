@@ -3,6 +3,8 @@ import express from "express";
 import upload from "../middlewares/upload.middleware.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { allowRoles } from "../middlewares/role.middleware.js";
+import { validate } from "../middlewares/validation.middleware.js";
+import { verificationDocumentIdSchema } from "../validators/document.validator.js";
 
 import {
     uploadProfessionalVerificationDocument,
@@ -54,7 +56,7 @@ router.patch(
     "/professional/:documentId/approve",
     verifyToken,
     allowRoles("admin"),
-    validate(verificationDocumentIdSchema, "params"),
+    validate(verificationDocumentIdSchema,"params"),
     approveProfessionalVerification
 );
 

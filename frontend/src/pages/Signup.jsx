@@ -96,24 +96,24 @@ function Signup() {
 
           <label>Role</label>
 
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
-            {/* <option value="">
-              Select your role
-            </option> */}
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+            >
+              <option value="" disabled>
+                Select your role
+              </option>
 
-            <option value="hospital">
-              Hospital
-            </option>
+              <option value="hospital">
+                Hospital
+              </option>
 
-            <option value="professional">
-              Healthcare Professional
-            </option>
-          </select>
+              <option value="professional">
+                Healthcare Professional
+              </option>
+            </select>
 
           <button type="submit" disabled={loading}>
             {loading ? "Creating..." : "Sign Up"}

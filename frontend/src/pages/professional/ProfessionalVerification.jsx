@@ -28,30 +28,31 @@ function ProfessionalVerification() {
   }, []);
 
   const fetchDocuments = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  try {
+    setLoading(true);
+    setError("");
 
-      const response = await api.get(
-        "/verifications/professional/pending"
-      );
+    const response = await api.get(
+      "/verifications/professional/my"
+    );
 
-      setDocuments(response.data.data || []);
-    } catch (error) {
-      console.error(
-        "Failed to fetch verification documents:",
-        error
-      );
+    console.log("My verification documents:", response.data);
 
-      setError(
-        error.response?.data?.message ||
-          "Failed to load verification documents."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    setDocuments(response.data.data || []);
+  } catch (error) {
+    console.error(
+      "Failed to fetch verification documents:",
+      error
+    );
 
+    setError(
+      error.response?.data?.message ||
+        "Failed to load verification documents."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   const handleLogout = () => {
     logout();
     navigate("/login");

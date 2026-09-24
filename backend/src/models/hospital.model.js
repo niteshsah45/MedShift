@@ -43,6 +43,10 @@ const hospitalSchema = new mongoose.Schema(
             "REJECTED"
         ],
         default:"PENDING"
+    },
+    verificationRejectionReason: {
+    type: String,
+    default: null
     }
 
 },
