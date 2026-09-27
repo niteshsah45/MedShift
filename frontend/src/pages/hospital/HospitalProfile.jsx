@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 import api from "../../services/api";
 
 function HospitalProfile() {
@@ -20,10 +19,41 @@ function HospitalProfile() {
   const [success, setSuccess] = useState("");
 
   const [editing, setEditing] = useState(false);
+  const [resubmitting, setResubmitting] = useState(false);
 
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  const handleResubmitVerification = async () => {
+    try {
+      setResubmitting(true);
+      setError("");
+      setSuccess("");
+
+      const response = await api.patch(
+        "/hospitals/me/resubmit-verification"
+      );
+
+      setProfile(response.data.data);
+
+      setSuccess(
+        "Hospital verification has been resubmitted successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Failed to resubmit verification:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to resubmit verification."
+      );
+    } finally {
+      setResubmitting(false);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -213,7 +243,6 @@ function HospitalProfile() {
 
       </aside>
 
-
       {/* Main Content */}
       <main className="dashboard-content">
 
@@ -242,7 +271,6 @@ function HospitalProfile() {
 
         </div>
 
-
         {error && (
           <div className="form-error">
             {error}
@@ -255,12 +283,12 @@ function HospitalProfile() {
           </div>
         )}
 
-
         <section className="profile-card">
 
           <div className="profile-section">
 
             <div className="profile-section-header">
+
               <h2>Hospital Information</h2>
 
               {profile?.verificationStatus && (
@@ -270,8 +298,37 @@ function HospitalProfile() {
                   {profile.verificationStatus}
                 </span>
               )}
+
             </div>
 
+            {/* Verification rejection information */}
+            {profile?.verificationStatus === "REJECTED" && (
+              <div className="verification-rejection-box">
+
+                <strong>
+                  Verification rejected
+                </strong>
+
+                {profile?.verificationRejectionReason && (
+                  <p>
+                    Reason:{" "}
+                    {profile.verificationRejectionReason}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={handleResubmitVerification}
+                  disabled={resubmitting}
+                >
+                  {resubmitting
+                    ? "Resubmitting..."
+                    : "Resubmit for Verification"}
+                </button>
+
+              </div>
+            )}
 
             {editing ? (
 
@@ -280,6 +337,7 @@ function HospitalProfile() {
                 <div className="form-grid">
 
                   <div className="form-group">
+
                     <label>
                       Hospital Name
                     </label>
@@ -291,10 +349,11 @@ function HospitalProfile() {
                       onChange={handleChange}
                       required
                     />
+
                   </div>
 
-
                   <div className="form-group">
+
                     <label>
                       City
                     </label>
@@ -306,12 +365,13 @@ function HospitalProfile() {
                       onChange={handleChange}
                       required
                     />
+
                   </div>
 
                 </div>
 
-
                 <div className="form-group">
+
                   <label>
                     Address
                   </label>
@@ -323,10 +383,11 @@ function HospitalProfile() {
                     onChange={handleChange}
                     required
                   />
+
                 </div>
 
-
                 <div className="form-group">
+
                   <label>
                     Departments
                   </label>
@@ -342,8 +403,8 @@ function HospitalProfile() {
                   <small>
                     Separate departments with commas.
                   </small>
-                </div>
 
+                </div>
 
                 <div className="form-actions">
 
@@ -375,37 +436,53 @@ function HospitalProfile() {
               <div className="profile-details">
 
                 <div className="profile-detail">
-                  <span>Hospital Name</span>
+
+                  <span>
+                    Hospital Name
+                  </span>
+
                   <strong>
                     {profile?.hospitalName || "-"}
                   </strong>
+
                 </div>
 
-
                 <div className="profile-detail">
-                  <span>City</span>
+
+                  <span>
+                    City
+                  </span>
+
                   <strong>
                     {profile?.city || "-"}
                   </strong>
+
                 </div>
 
-
                 <div className="profile-detail">
-                  <span>Address</span>
+
+                  <span>
+                    Address
+                  </span>
+
                   <strong>
                     {profile?.address || "-"}
                   </strong>
+
                 </div>
 
-
                 <div className="profile-detail">
-                  <span>Departments</span>
+
+                  <span>
+                    Departments
+                  </span>
 
                   <strong>
                     {profile?.departments?.length
                       ? profile.departments.join(", ")
                       : "-"}
                   </strong>
+
                 </div>
 
               </div>

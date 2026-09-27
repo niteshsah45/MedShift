@@ -48,3 +48,27 @@ export const createRequestSchema = Joi.object({
         .required()
 
 });
+
+export const mongoIdSchema = Joi.object({
+  id: Joi.string().hex().length(24).required(),
+});
+
+export const requestIdSchema = Joi.object({
+  requestId: Joi.string().hex().length(24).required(),
+});
+
+export const applicationIdSchema = Joi.object({
+  applicationId: Joi.string().hex().length(24).required(),
+});
+
+export const assignmentIdSchema = Joi.object({
+  assignmentId: Joi.string().hex().length(24).required(),
+});
+
+export const documentIdSchema = Joi.object({
+  documentId: Joi.string().hex().length(24).required(),
+});
+
+export const hospitalIdSchema = Joi.object({
+  hospitalId: Joi.string().hex().length(24).required(),
+});

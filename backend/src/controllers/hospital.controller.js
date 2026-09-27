@@ -1,6 +1,8 @@
 import Hospital from "../models/hospital.model.js";
 
-import  { getMyHospitalService, updateMyHospitalService } from "../services/hospitalProfile.service.js";
+import  { getMyHospitalService, updateMyHospitalService,
+    resubmitHospitalVerificationService
+ } from "../services/hospitalProfile.service.js";
 
 
 export const createHospitalProfile = async(req,res)=>{
@@ -96,5 +98,30 @@ export const updateMyHospital = async (req, res) => {
             success: false,
             message: error.message
         });
+    }
+};
+
+export const resubmitHospitalVerification = async (req, res) => {
+
+    try {
+
+        const hospital =
+            await resubmitHospitalVerificationService(
+                req.user.id
+            );
+
+        res.status(200).json({
+            success: true,
+            message: "Hospital verification resubmitted successfully",
+            data: hospital
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+
     }
 };

@@ -2,7 +2,8 @@ import express from "express";
 
 import {createHospitalProfile,
     getMyHospital,
-    updateMyHospital
+    updateMyHospital,
+    resubmitHospitalVerification
 } from "../controllers/hospital.controller.js";
 
 
@@ -48,6 +49,12 @@ router.patch(
     allowRoles("hospital"),
     validate(updateHospitalSchema),
     updateMyHospital
+);
+router.patch(
+    "/me/resubmit-verification",
+    verifyToken,
+    allowRoles("hospital"),
+    resubmitHospitalVerification
 );
 
 

@@ -348,3 +348,39 @@ export const getMyApplicationsServiceForProfessional = async (userId) => {
 
     return applications;
 };
+
+export const withdrawApplicationService = async (
+  applicationId,
+  userId
+) => {
+  const professional = await Professional.findOne({
+    userId,
+  });
+
+  if (!professional) {
+    throw new Error("Professional profile not found");
+  }
+
+  const application = await Application.findOne({
+    _id: applicationId,
+    professionalId: professional._id,
+  });
+
+  if (!application) {
+    throw new Error(
+      "Application not found or you are not allowed to withdraw it"
+    );
+  }
+
+  if (application.status !== "PENDING") {
+    throw new Error(
+      "Only pending applications can be withdrawn"
+    );
+  }
+
+  application.status = "WITHDRAWN";
+
+  await application.save();
+
+  return application;
+};

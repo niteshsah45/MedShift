@@ -4,7 +4,8 @@ import { applyToRequest,
     getApplicationsForHospital_Request,
     acceptApplication,
     rejectApplication,
-    getMyApplicationsForProfessional
+    getMyApplicationsForProfessional,
+    withdrawApplication
 } from "../controllers/application.controller.js";
 
 import { requireApprovedProfessional ,
@@ -69,6 +70,14 @@ router.patch(
     requireApprovedHospital,
     rejectApplication
 )
+
+router.patch(
+  "/:applicationId/withdraw",
+  verifyToken,
+  allowRoles("professional"),
+  validate(applicationIdSchema, "params"),
+  withdrawApplication
+);
 
 // get all the applications for a particular professional
 router.get(

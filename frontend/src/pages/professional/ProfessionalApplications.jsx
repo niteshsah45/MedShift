@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
+import ConfirmModal from "../../components/ConfirmModal";
+
 function ProfessionalApplications() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -12,10 +14,14 @@ function ProfessionalApplications() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+
+  const [withdrawModal, setWithdrawModal] = useState(null);
+const [withdrawing, setWithdrawing] = useState(false);
 
   const fetchApplications = async () => {
     try {
@@ -52,6 +58,38 @@ function ProfessionalApplications() {
   const getRequest = (application) => {
     return application.requestId || {};
   };
+
+  const handleWithdrawApplication = async () => {
+  if (!withdrawModal) return;
+
+  try {
+    setWithdrawing(true);
+    setError("");
+    setSuccess("");
+
+    await api.patch(
+      `/applications/${withdrawModal._id}/withdraw`
+    );
+
+    setSuccess("Application withdrawn successfully.");
+
+    setWithdrawModal(null);
+
+    await fetchApplications();
+  } catch (error) {
+    console.error(
+      "Failed to withdraw application:",
+      error
+    );
+
+    setError(
+      error.response?.data?.message ||
+        "Failed to withdraw application."
+    );
+  } finally {
+    setWithdrawing(false);
+  }
+};
 
   const getHospital = (application) => {
     const request = getRequest(application);
@@ -369,6 +407,11 @@ function ProfessionalApplications() {
           {error && (
             <div className="profile-message profile-message-error">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="profile-message profile-message-success">
+              {success}
             </div>
           )}
 
@@ -730,6 +773,14 @@ function ProfessionalApplications() {
                           </span>
                         )}
 
+                        {application.status === "PENDING" && (
+                          <button
+                            className="modal-danger-button"
+                            onClick={() => setWithdrawModal(application)}
+                          >
+                            Withdraw
+                          </button>
+                        )}
                       </div>
 
                     </article>
@@ -743,6 +794,19 @@ function ProfessionalApplications() {
         </div>
 
       </main>
+
+      {withdrawModal && (
+        <ConfirmModal
+          title="Withdraw Application"
+          message="Are you sure you want to withdraw this application? You will no longer be considered for this shift."
+          confirmText="Withdraw"
+          cancelText="Keep Application"
+          onConfirm={handleWithdrawApplication}
+          onCancel={() => setWithdrawModal(null)}
+          loading={withdrawing}
+          danger={true}
+        />
+      )}
 
     </div>
   );

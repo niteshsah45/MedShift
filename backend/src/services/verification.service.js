@@ -238,6 +238,7 @@ export const approveHospitalVerificationService = async (hospitalId) => {
     }
 
     hospital.verificationStatus = "APPROVED";
+    hospital.verificationRejectionReason = null;
 
     await hospital.save();
 
@@ -267,6 +268,7 @@ export const rejectHospitalVerificationService = async (
     }
 
     hospital.verificationStatus = "REJECTED";
+    hospital.verificationRejectionReason = reason;
 
     await hospital.save();
 

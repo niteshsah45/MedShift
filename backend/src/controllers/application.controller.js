@@ -4,7 +4,7 @@ import StaffingRequest from "../models/staffingRequest.model.js";
 import { checkEligibility } from "../services/eligibilityForApplying.service.js";
 import Hospital from "../models/hospital.model.js";
 import { acceptApplicationService,rejectApplicationService,
-    getMyApplicationsServiceForProfessional
+    getMyApplicationsServiceForProfessional,withdrawApplicationService
 } from "../services/application.service.js";
 import { checkShiftConflict } from "../services/conflict.service.js";
 import { createNotification } from "../services/notification.service.js";
@@ -329,4 +329,24 @@ export const getMyApplicationsForProfessional = async (req, res) => {
             message: error.message
         });
     }
+};
+
+export const withdrawApplication = async (req, res) => {
+  try {
+    const application = await withdrawApplicationService(
+      req.params.applicationId,
+      req.user.id
+    );
+
+    res.status(200).json({
+      success: true,
+      data: application,
+      message: "Application withdrawn successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
