@@ -55,36 +55,63 @@ export const createRequest = async(req,res)=>{
 
 };
 
-export const getAvailableRequests = async(req,res)=>{
+export const getAvailableRequests = async (req, res) => {
 
-    try{
+    try {
 
-        const requests = await StaffingRequest
-            .find({
-                status:"OPEN",
-                startAt:{
-                    $gt: new Date()
-                }
-            })
-            .populate(
-                "hospitalId",
-                "hospitalName city address"
-            );
+        const { page, limit } = req.query;
+
+        const skip = (page - 1) * limit;
+
+        const filter = {
+            status: "OPEN",
+            startAt: {
+                $gt: new Date()
+            }
+        };
+
+        const [requests, total] = await Promise.all([
+
+            StaffingRequest
+                .find(filter)
+                .populate(
+                    "hospitalId",
+                    "hospitalName city address"
+                )
+                .sort({
+                    createdAt: -1
+                })
+                .skip(skip)
+                .limit(limit),
+
+            StaffingRequest.countDocuments(filter)
+
+        ]);
+
+        const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
 
-            success:true,
+            success: true,
 
-            data:requests
+            data: requests,
+
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            }
 
         });
 
-
-    }catch(error){
+    } catch (error) {
 
         res.status(500).json({
-            success:false,
-            message:error.message
+            success: false,
+            message: error.message
         });
 
     }

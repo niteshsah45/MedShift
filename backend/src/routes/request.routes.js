@@ -30,6 +30,7 @@ router.post(
 router.get(
     "/",
     verifyToken,
+    validate(paginationSchema, "query"),
     getAvailableRequests
 );
 router.patch(

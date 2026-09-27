@@ -72,3 +72,16 @@ export const documentIdSchema = Joi.object({
 export const hospitalIdSchema = Joi.object({
   hospitalId: Joi.string().hex().length(24).required(),
 });
+
+export const paginationSchema = Joi.object({
+    page: Joi.number()
+        .integer()
+        .min(1)
+        .default(1),
+
+    limit: Joi.number()
+        .integer()
+        .min(1)
+        .max(50)
+        .default(10)
+});
